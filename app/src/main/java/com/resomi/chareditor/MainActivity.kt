@@ -1,18 +1,13 @@
 package com.resomi.chareditor
 
-import android.graphics.Paint
-import android.graphics.Path
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
 import android.widget.Toast
 
 class MainActivity : AppCompatActivity() {
-
-    companion object {
-        var path = Path()
-        var paintBrush = Paint()
-    }
+    private lateinit var paintView: PaintView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,5 +19,9 @@ class MainActivity : AppCompatActivity() {
         drawButton.setOnClickListener {
             Toast.makeText(this, "clicked!", Toast.LENGTH_SHORT).show()
         }
+
+        paintView = findViewById(R.id.image_view)
+        paintView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        paintView.refresh()
     }
 }
