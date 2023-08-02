@@ -15,7 +15,7 @@ class CanvasGuide() {
         }
         fun draw(root: SVGML, width: Int) {
             val e = root.elements
-            e.add(SVGMLBox("canvasFrame", 0, 0, width, width, Color.RED))
+            e.add(SVGMLBox("canvasFrame", 0, 0, width - 1, width - 1, Color.RED))
             e.add(box(width, 90))
             e.add(box(width, 80))
             e.add(box(width, 75))

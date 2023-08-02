@@ -12,6 +12,6 @@ class SVGMLBox(id: String, x1: Int, y1: Int, x2: Int, y2: Int, c: Int) : SVGMLEl
 
     override fun toString(): String {
         val commonAttrs = getCommonAttributes()
-        return "<path $commonAttrs $SVGMLBox.stroke d=\"$d\"></path>"
+        return "<path $commonAttrs ${SVGMLBox.stroke} d=\"$d\"></path>"
     }
 }
