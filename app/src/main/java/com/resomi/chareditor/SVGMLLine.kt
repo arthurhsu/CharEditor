@@ -6,7 +6,7 @@ class SVGMLLine(
     private var x2: Int,
     private var y2: Int,
     color: Int
-) : SVGMLElement("", color, 1) {
+) : SVGMLElement(color, 1) {
     companion object {
         const val dash = "stroke-dasharray=\"5,5\""
     }

@@ -7,7 +7,7 @@ class CanvasGuide() {
         fun box(width: Int, pct: Int): SVGMLElement {
             val l = width * (100 - pct) / 200
             val r = width - l
-            return SVGMLBox("rc$pct", l, l, r, r, Color.RED)
+            return SVGMLBox(l, l, r, r, Color.RED)
         }
 
         fun line(x1: Int, y1: Int, x2: Int, y2: Int): SVGMLElement {
@@ -15,7 +15,7 @@ class CanvasGuide() {
         }
         fun draw(root: SVGML, width: Int) {
             val e = root.elements
-            e.add(SVGMLBox("canvasFrame", 0, 0, width - 1, width - 1, Color.RED))
+            e.add(SVGMLBox(0, 0, width - 1, width - 1, Color.RED))
             e.add(box(width, 90))
             e.add(box(width, 80))
             e.add(box(width, 75))

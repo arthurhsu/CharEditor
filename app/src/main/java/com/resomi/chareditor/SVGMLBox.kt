@@ -1,6 +1,6 @@
 package com.resomi.chareditor
 
-class SVGMLBox(id: String, x1: Int, y1: Int, x2: Int, y2: Int, c: Int) : SVGMLElement(id, c, 1) {
+class SVGMLBox(x1: Int, y1: Int, x2: Int, y2: Int, c: Int) : SVGMLElement(c, 1) {
     companion object {
         const val stroke = "fill=\"none\" stroke-dasharray=\"5.5\""
     }
@@ -12,6 +12,6 @@ class SVGMLBox(id: String, x1: Int, y1: Int, x2: Int, y2: Int, c: Int) : SVGMLEl
 
     override fun toString(): String {
         val commonAttrs = getCommonAttributes()
-        return "<path $commonAttrs ${SVGMLBox.stroke} d=\"$d\"></path>"
+        return "<path $commonAttrs ${stroke} d=\"$d\"></path>"
     }
 }
