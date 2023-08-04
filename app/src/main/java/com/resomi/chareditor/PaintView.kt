@@ -1,7 +1,6 @@
 package com.resomi.chareditor
 
 import android.content.Context
-import android.graphics.Point
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.util.Log
@@ -13,7 +12,7 @@ import kotlin.math.abs
 
 class PaintView : SVGImageView {
     private val W: Int = 512
-    private var lastPt = Point(0, 0)
+    private var lastPt = Pt(0, 0)
     private var curGlyph = Glyph()
     private var curStroke = curGlyph.getFutureStroke()
 
@@ -33,10 +32,10 @@ class PaintView : SVGImageView {
         }
     }
 
-    private fun toSVGCoordinates(x: Int, y: Int, rc: Rect): Point {
+    private fun toSVGCoordinates(x: Int, y: Int, rc: Rect): Pt {
         val cx: Int = x * W / rc.width()
         val cy: Int = y * W / rc.height()
-        return Point(cx, cy)
+        return Pt(cx, cy)
     }
 
     override fun onTouchEvent(ev: MotionEvent?): Boolean {

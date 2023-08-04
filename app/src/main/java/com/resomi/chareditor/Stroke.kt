@@ -1,12 +1,44 @@
 package com.resomi.chareditor
 
 import android.graphics.Color
-import android.graphics.Point
 import android.util.Log
+import org.json.JSONArray
+import org.json.JSONObject
 import java.text.DecimalFormat
 
 class Stroke {
-    private val vertices = ArrayList<Point>()
+    companion object {
+        fun fromJSON(json: JSONObject): Stroke {
+            val ret = Stroke()
+            val dots = json.getJSONArray("dots")
+            for (i in 0 until dots.length() step 2) {
+                ret.vertices.add(Pt(dots.getInt(i), dots.getInt(i+1)))
+            }
+            val ds = json.getJSONArray("splines")
+            for (i in 0 until ds.length()) {
+                ret.splines.add(SVGMLPath(Color.BLUE, ds.getString(i)))
+            }
+            return ret
+        }
+    }
+
+    fun toJSON() : JSONObject {
+        val ret = JSONObject()
+        val dots = ArrayList<Int>()
+        for (v in vertices) {
+            dots.add(v.x)
+            dots.add(v.y)
+        }
+        ret.put("dots", JSONArray(dots))
+        val m = ArrayList<String>()
+        for (s in splines) {
+            m.add(s.d)
+        }
+        ret.put("splines", JSONArray(m))
+        return ret
+    }
+
+    private val vertices = ArrayList<Pt>()
     private var splines = ArrayList<SVGMLPath>()
     private val df = DecimalFormat("#.##")
     var activated = true
@@ -74,7 +106,7 @@ class Stroke {
     }
 
     private fun updateSplines() {
-        if (vertices.size < 3) return
+        if (vertices.size < 2) return
 
         val x = ArrayList<Int>()
         val y = ArrayList<Int>()
@@ -98,7 +130,7 @@ class Stroke {
         return vertices.isEmpty()
     }
 
-    fun addV(v: Point) {
+    fun addV(v: Pt) {
         vertices.add(v)
     }
 
