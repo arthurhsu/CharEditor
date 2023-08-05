@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
                         R.id.btn_glyph -> Global.get().scope = Scope.Glyph
                         else -> Global.get().scope = Scope.Stroke
                     }
-                    Log.d("CharEditor", "scope ${Global.get().scope}")
+                    Log.d(Global.TAG, "scope ${Global.get().scope}")
                 }
             }
         }

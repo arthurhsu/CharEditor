@@ -2,6 +2,8 @@ package com.resomi.chareditor
 
 class Global private constructor() {
     companion object {
+        const val TAG = "CharEditor"
+
         @Volatile
         private var instance: Global? = null
 

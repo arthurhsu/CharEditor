@@ -41,7 +41,7 @@ class Character(val text: String) {
                     val json = JSONObject(data)
                     ret = fromJSON(json)
                 } catch (e: Exception) {
-                    Log.e("CharEditor", e.toString())
+                    Log.e(Global.TAG, e.toString())
                 }
             }
             thread.start()

@@ -48,7 +48,8 @@ class PaintView : SVGImageView {
             svg = SVG.getFromString(svgPreview.toString())
             previews.forEach { it.setSVG(svg) }
         } catch (e: Exception) {
-            Log.d("SVGCrash", svgml.toString())
+            Log.d(Global.TAG, "SVG parser crash")
+            Log.d(Global.TAG, svgml.toString())
         }
     }
 
