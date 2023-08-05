@@ -2,4 +2,8 @@
     <string name="app_name">CharEditor</string>
     <string name="char_picker">Enter Kanji to edit</string>
     <string name="char_picker_hint">Enter one Kanji char here</string>
+    <string name="load">Load</string>
+    <string name="scope_char">Char</string>
+    <string name="scope_stroke">Stroke</string>
+    <string name="scope_glyph">Glyph</string>
 </resources>

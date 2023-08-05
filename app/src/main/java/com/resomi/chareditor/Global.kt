@@ -16,6 +16,6 @@ class Global private constructor() {
         }
     }
 
-    var state = State.Display
+    var scope = Scope.Char
     var c = Character.nada()
 }

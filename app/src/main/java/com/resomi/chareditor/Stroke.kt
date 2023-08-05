@@ -1,7 +1,6 @@
 package com.resomi.chareditor
 
 import android.graphics.Color
-import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.DecimalFormat
@@ -46,7 +45,6 @@ class Stroke {
 
     // Compute control points
     private fun computeControlPoints(v: ArrayList<Int>): Pair<FloatArray, FloatArray> {
-        Log.i("", "cp $v")
         val n = v.size - 1
         val p1 = FloatArray(n)
         val p2 = FloatArray(n)
@@ -121,11 +119,11 @@ class Stroke {
         splines.clear()
         var color: Int = Color.BLUE
         if (selected && !preview) {
-            when (Global.get().state) {
-                State.Draw -> {
+            when (Global.get().scope) {
+                Scope.Stroke -> {
                     color = Color.GREEN
                 }
-                State.Edit -> {
+                Scope.Glyph -> {
                     color = Color.argb(0, 150, 75, 0)
                 }
                 else -> {

@@ -3,16 +3,15 @@ package com.resomi.chareditor
 import android.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.TextView
+import com.google.android.material.button.MaterialButtonToggleGroup
 
 class MainActivity : AppCompatActivity() {
     private lateinit var paintView: PaintView
-    private lateinit var previewSmall: Preview
-    private lateinit var previewLarge: Preview
-    private lateinit var charInfo: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,20 +25,20 @@ class MainActivity : AppCompatActivity() {
         paintView = findViewById(R.id.image_view)
         paintView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
 
-        previewSmall = findViewById(R.id.preview_small)
+        val previewSmall: Preview = findViewById(R.id.preview_small)
         previewSmall.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         paintView.associatePreview(previewSmall)
 
-        previewLarge = findViewById(R.id.preview_large)
+        val previewLarge: Preview = findViewById(R.id.preview_large)
         previewLarge.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         paintView.associatePreview(previewLarge)
 
         paintView.refresh()
 
-        charInfo = findViewById(R.id.char_info)
+        val charInfo: TextView = findViewById(R.id.char_info)
 
         // Initialize buttons
-        val loadButton = findViewById<ImageButton>(R.id.load)
+        val loadButton = findViewById<Button>(R.id.load)
         loadButton.setOnClickListener {
             val builder = AlertDialog.Builder(it.context)
             val inflater = layoutInflater
@@ -58,9 +57,20 @@ class MainActivity : AppCompatActivity() {
             builder.show()
         }
 
-        val drawButton = findViewById<ImageButton>(R.id.draw)
-        drawButton.setOnClickListener {
-            Global.get().state = State.Draw
+        val scopeGroup = findViewById<MaterialButtonToggleGroup>(R.id.scope)
+        scopeGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                if (Global.get().c.isNada() && isChecked && checkedId != R.id.btn_char) {
+                    scopeGroup.check(R.id.btn_char)
+                } else {
+                    when (checkedId) {
+                        R.id.btn_char -> Global.get().scope = Scope.Char
+                        R.id.btn_glyph -> Global.get().scope = Scope.Glyph
+                        else -> Global.get().scope = Scope.Stroke
+                    }
+                    Log.d("CharEditor", "scope ${Global.get().scope}")
+                }
+            }
         }
     }
 

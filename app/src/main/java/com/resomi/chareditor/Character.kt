@@ -50,6 +50,10 @@ class Character(val text: String) {
         }
     }
 
+    fun isNada(): Boolean {
+        return text == "0"
+    }
+
     fun toJSON(): JSONObject {
         val ret = JSONObject()
         ret.put("code", code)

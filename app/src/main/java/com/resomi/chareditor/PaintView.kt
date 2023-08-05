@@ -67,8 +67,8 @@ class PaintView : SVGImageView {
         val rc = Rect(0, 0, 0, 0)
         this.getGlobalVisibleRect(rc)
 
-        when(Global.get().state) {
-            State.Draw -> {
+        when(Global.get().scope) {
+            Scope.Stroke -> {
                 when (ev.action) {
                     MotionEvent.ACTION_DOWN -> {
                         if (lastStroke != curStroke) {
@@ -97,7 +97,7 @@ class PaintView : SVGImageView {
                 }
             }
 
-            State.Edit -> {
+            Scope.Glyph -> {
                 when (ev.action) {
                     MotionEvent.ACTION_DOWN -> {
                         // TODO: select stroke
