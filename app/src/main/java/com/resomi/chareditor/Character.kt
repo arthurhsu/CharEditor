@@ -1,8 +1,11 @@
 package com.resomi.chareditor
 
+import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.InvalidObjectException
+import java.lang.Exception
+import java.net.URL
 
 class Character(val text: String) {
     companion object {
@@ -23,6 +26,28 @@ class Character(val text: String) {
         fun nada(): Character {
             return Character("0")
         }
+
+        fun getCode(s: String): String {
+            return s.codePointAt(0).toString(16).uppercase()
+        }
+
+        fun load(s: String): Character {
+            var ret = Character(s)
+            val file = "${ret.code.substring(0, 1)}/${ret.code}.json"
+            val url = "https://raw.githubusercontent.com/arthurhsu/calligraphy/master/data/$file"
+            val thread = Thread {
+                try {
+                    val data = URL(url).readText()
+                    val json = JSONObject(data)
+                    ret = fromJSON(json)
+                } catch (e: Exception) {
+                    Log.e("CharEditor", e.toString())
+                }
+            }
+            thread.start()
+            thread.join()
+            return ret
+        }
     }
 
     fun toJSON(): JSONObject {
@@ -37,17 +62,6 @@ class Character(val text: String) {
         return ret
     }
 
-    val code: String = text.codePointAt(0).toString(16).uppercase()
+    val code = getCode(text)
     val glyphs = ArrayList<Glyph>()
-
-    init {
-        glyphs.addAll(load(code))
-    }
-
-    private fun load(code: String): ArrayList<Glyph> {
-        val ret = ArrayList<Glyph>()
-        // if empty
-        ret.add(Glyph())
-        return ret
-    }
 }

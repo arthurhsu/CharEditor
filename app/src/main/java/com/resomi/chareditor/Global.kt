@@ -10,8 +10,12 @@ class Global private constructor() {
                 instance = it
             }
         }
+
+        fun load(s: String) {
+            get().c = Character.load(s)
+        }
     }
 
-    val state = State.Draw
-    val c = Character.nada()
+    var state = State.Display
+    var c = Character.nada()
 }

@@ -15,7 +15,7 @@ class PaintView : SVGImageView {
     private val W: Int = 512
     private var lastPt = Pt(0, 0)
     private var curGlyph = Glyph()
-    private var curStroke = curGlyph.getFutureStroke()
+    private var curStroke = Stroke()
     private var lastStroke = curStroke
     private var previews = ArrayList<Preview>()
 
@@ -25,6 +25,13 @@ class PaintView : SVGImageView {
 
     fun associatePreview(preview: Preview) {
         previews.add(preview)
+    }
+
+    fun onCharChange() {
+        curGlyph = Global.get().c.glyphs[0]
+        curStroke = curGlyph.getFutureStroke()
+        lastStroke = curStroke
+        refresh()
     }
 
     fun refresh() {

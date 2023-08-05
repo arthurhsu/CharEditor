@@ -18,6 +18,7 @@ class Stroke {
             for (i in 0 until ds.length()) {
                 ret.splines.add(SVGMLPath(Color.BLUE, ds.getString(i)))
             }
+            ret.selected = false
             return ret
         }
     }
