@@ -41,7 +41,7 @@ class Stroke {
     private val vertices = ArrayList<Pt>()
     private var splines = ArrayList<SVGMLPath>()
     private val df = DecimalFormat("#.##")
-    var activated = true
+    var selected = true
 
     // Compute control points
     private fun computeControlPoints(v: ArrayList<Int>): Pair<FloatArray, FloatArray> {
@@ -105,7 +105,7 @@ class Stroke {
         return "M $x1 $y1 C ${r(px1)} ${r(py1)} ${r(px2)} ${r(py2)} $x2 $y2"
     }
 
-    private fun updateSplines() {
+    private fun updateSplines(preview: Boolean) {
         if (vertices.size < 2) return
 
         val x = ArrayList<Int>()
@@ -119,9 +119,22 @@ class Stroke {
         val py = computeControlPoints(y)
         splines.clear()
         var color: Int = Color.BLUE
-        if (activated) color = Color.GREEN
+        if (selected && !preview) {
+            when (Global.get().state) {
+                State.Draw -> {
+                    color = Color.GREEN
+                }
+                State.Edit -> {
+                    color = Color.argb(0, 150, 75, 0)
+                }
+                else -> {
+                    // Do nothing, keep it blue
+                }
+            }
+        }
         for (i in 0 until vertices.size - 1) {
-            val d = getD(x[i], y[i], px.first[i], py.first[i], px.second[i], py.second[i], x[i+1], y[i+1])
+            val d = getD(x[i], y[i], px.first[i], py.first[i],
+                         px.second[i], py.second[i], x[i+1], y[i+1])
             splines.add(SVGMLPath(color, d))
         }
     }
@@ -134,12 +147,12 @@ class Stroke {
         vertices.add(v)
     }
 
-    fun render(canvas: SVGML) {
+    fun render(canvas: SVGML, preview: Boolean) {
         if (isEmpty()) return
 
-        updateSplines()
+        updateSplines(preview)
         canvas.elements.addAll(splines)
-        if (!activated) return
+        if (!selected || preview) return
 
         for (v in vertices) {
             canvas.elements.add(SVGMLCircle(v.x, v.y, Color.RED, 3))

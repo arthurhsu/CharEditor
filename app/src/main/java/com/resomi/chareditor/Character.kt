@@ -19,6 +19,10 @@ class Character(val text: String) {
             }
             return ret
         }
+
+        fun nada(): Character {
+            return Character("0")
+        }
     }
 
     fun toJSON(): JSONObject {
