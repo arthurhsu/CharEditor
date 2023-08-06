@@ -104,7 +104,7 @@ class Stroke {
         return "M $x1 $y1 C ${r(px1)} ${r(py1)} ${r(px2)} ${r(py2)} $x2 $y2"
     }
 
-    private fun updateSplines(preview: Boolean) {
+    private fun updateSplines(preview: Boolean, scope: Scope) {
         if (vertices.size < 2) return
 
         val x = ArrayList<Int>()
@@ -119,7 +119,7 @@ class Stroke {
         splines.clear()
         var color: Int = Color.BLUE
         if (selected && !preview) {
-            when (Global.get().scope) {
+            when (scope) {
                 Scope.Stroke -> {
                     color = Color.GREEN
                 }
@@ -146,10 +146,10 @@ class Stroke {
         vertices.add(v)
     }
 
-    fun render(canvas: SVGML, preview: Boolean) {
+    fun render(canvas: SVGML, preview: Boolean, scope: Scope) {
         if (isEmpty()) return
 
-        updateSplines(preview)
+        updateSplines(preview, scope)
         canvas.elements.addAll(splines)
         if (!selected || preview) return
 

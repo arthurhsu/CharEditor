@@ -53,8 +53,8 @@ class Glyph {
         futureStroke = Stroke()
     }
 
-    fun render(canvas: SVGML, preview: Boolean) {
-        strokes.forEach { it.render(canvas, preview) }
-        futureStroke.render(canvas, preview)
+    fun render(canvas: SVGML, preview: Boolean, scope: Scope) {
+        strokes.forEach { it.render(canvas, preview, scope) }
+        futureStroke.render(canvas, preview, scope)
     }
 }
