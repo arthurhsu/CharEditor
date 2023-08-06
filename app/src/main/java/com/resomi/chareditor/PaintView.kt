@@ -1,5 +1,6 @@
 package com.resomi.chareditor
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
@@ -12,11 +13,13 @@ import kotlin.math.max
 import kotlin.math.abs
 
 class PaintView : SVGImageView {
-    private val W: Int = 512
+    companion object {
+        const val W: Int = 512
+    }
     private var lastPt = Pt(0, 0)
-    private var curGlyph = Glyph()
-    private var curStroke = Stroke()
-    private var lastStroke = curStroke
+    private var curGlyph = Glyph.getEmpty()
+    private lateinit var curStroke: Stroke
+    private lateinit var lastStroke: Stroke
     private var previews = ArrayList<Preview>()
     private lateinit var viewModel: MainViewModel
 
@@ -35,8 +38,8 @@ class PaintView : SVGImageView {
     fun onCharChange() {
         val c = viewModel.charState.value
         if (c.isNada()) return
-        curGlyph = viewModel.charState.value.glyphs[0]
-        curStroke = curGlyph.getFutureStroke()
+        curGlyph = c.currentGlyph
+        curStroke = curGlyph.currentStroke
         lastStroke = curStroke
         refresh()
     }
@@ -66,6 +69,7 @@ class PaintView : SVGImageView {
         return Pt(cx, cy)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(ev: MotionEvent?): Boolean {
         if (ev == null) return false
 

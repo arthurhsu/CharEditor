@@ -36,7 +36,8 @@ class MainActivity : AppCompatActivity() {
                         onCharChange()
                     }
                     if (it is Scope) {
-                        Log.i(TAG, "scope change ${it}")
+                        Log.i(TAG, "scope change $it")
+                        onScopeChange()
                     }
                 }
             }
@@ -67,7 +68,9 @@ class MainActivity : AppCompatActivity() {
             val editText = dialogLayout.findViewById<EditText>(R.id.edit_char)
             builder.setView(dialogLayout)
             builder.setPositiveButton("OK") { _, _ ->
-                viewModel.load(editText.text.toString())
+                if (editText.text.length == 1) {
+                    viewModel.load(editText.text.toString())
+                }
             }
             builder.show()
         }
@@ -76,7 +79,7 @@ class MainActivity : AppCompatActivity() {
         scopeGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
                 val c = viewModel.charState.value
-                if (c.isNada() && isChecked && checkedId != R.id.btn_char) {
+                if (c.isNada() && checkedId != R.id.btn_char) {
                     scopeGroup.check(R.id.btn_char)
                 } else {
                     when (checkedId) {
@@ -92,10 +95,25 @@ class MainActivity : AppCompatActivity() {
     private fun onCharChange() {
         val c = viewModel.charState.value
         if (c.isNada()) return
+
         val badge = "${c.text} ${c.code}"
         val charInfo: TextView = findViewById(R.id.char_info)
         charInfo.text = badge
         // TODO: render tags
         paintView.onCharChange()
+    }
+
+    private fun onScopeChange() {
+        val c = viewModel.charState.value
+        if (c.isNada() || c.currentGlyph.isEmpty()) return
+
+        val s = viewModel.scopeState.value
+        val stroke = viewModel.charState.value.currentGlyph.currentStroke
+        when (s) {
+            Scope.Char -> stroke.selected = false
+            Scope.Glyph -> stroke.selected = false
+            Scope.Stroke -> stroke.selected = true
+        }
+        paintView.refresh()
     }
 }

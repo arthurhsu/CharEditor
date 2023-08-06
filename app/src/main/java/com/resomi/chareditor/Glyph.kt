@@ -3,7 +3,7 @@ package com.resomi.chareditor
 import org.json.JSONArray
 import org.json.JSONObject
 
-class Glyph {
+class Glyph private constructor() {
     companion object {
         fun fromJSON(json: JSONObject): Glyph {
             val ret = Glyph()
@@ -16,6 +16,20 @@ class Glyph {
             for (i in 0 until strokes.length()) {
                 ret.strokes.add(Stroke.fromJSON(strokes.getJSONObject(i)))
             }
+            if (strokes.length() > 0) {
+                ret.currentStroke = ret.strokes[strokes.length() - 1]
+                ret.futureStroke = ret.currentStroke
+            } else {
+                ret.currentStroke = Stroke()
+                ret.futureStroke = ret.currentStroke
+            }
+            return ret
+        }
+
+        fun getEmpty(): Glyph {
+            val ret = Glyph()
+            ret.currentStroke = Stroke()
+            ret.futureStroke = ret.currentStroke
             return ret
         }
     }
@@ -32,15 +46,17 @@ class Glyph {
     }
 
     private val strokes = ArrayList<Stroke>()
-    private var futureStroke = Stroke()
+
+    lateinit var currentStroke: Stroke
+    lateinit var futureStroke: Stroke
     var tags = ArrayList<String>()
 
     init {
         tags.add("楷")
     }
 
-    fun getFutureStroke(): Stroke {
-        return futureStroke
+    fun isEmpty(): Boolean {
+        return strokes.isEmpty()
     }
 
     fun commitFutureStroke(): Stroke {
@@ -49,11 +65,8 @@ class Glyph {
         return futureStroke
     }
 
-    fun resetFutureStroke() {
-        futureStroke = Stroke()
-    }
-
     fun render(canvas: SVGML, preview: Boolean, scope: Scope) {
+        if (isEmpty()) return
         strokes.forEach { it.render(canvas, preview, scope) }
         futureStroke.render(canvas, preview, scope)
     }

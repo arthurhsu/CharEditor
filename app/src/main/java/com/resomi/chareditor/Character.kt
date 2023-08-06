@@ -4,7 +4,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.InvalidObjectException
 
-class Character(val text: String) {
+class Character private constructor(val text: String) {
     companion object {
         fun fromJSON(json: JSONObject): Character {
             val text = json.getString("text")
@@ -17,11 +17,19 @@ class Character(val text: String) {
             for (i in 0 until glyphArray.length()) {
                 ret.glyphs.add(Glyph.fromJSON(glyphArray.getJSONObject(i)))
             }
+            ret.currentGlyph = ret.glyphs[0]
             return ret
         }
 
         fun nada(): Character {
             return Character("0")
+        }
+
+        fun getNew(s: String): Character {
+            val ret = Character(s)
+            ret.glyphs.add(Glyph.getEmpty())
+            ret.currentGlyph = ret.glyphs[0]
+            return ret
         }
 
         fun getCode(s: String): String {
@@ -47,4 +55,5 @@ class Character(val text: String) {
 
     val code = getCode(text)
     val glyphs = ArrayList<Glyph>()
+    lateinit var currentGlyph: Glyph
 }

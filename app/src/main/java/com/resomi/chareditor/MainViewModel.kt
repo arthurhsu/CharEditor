@@ -29,6 +29,8 @@ class MainViewModel : ViewModel() {
             char.value = ret
         } catch (e: Exception) {
             Log.e(TAG, e.toString())
+            // TODO: do not blindly add a new char
+            char.value = Character.getNew(s)
         }
     }
 
