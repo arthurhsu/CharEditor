@@ -5,9 +5,13 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -73,16 +77,93 @@ class MainActivity : AppCompatActivity() {
         paintView.refresh()
 
         // Initialize buttons
-        val loadButton = findViewById<Button>(R.id.load)
-        loadButton.setOnClickListener { onLoadClick(it) }
+        val loginButton = findViewById<Button>(R.id.login)
+        loginButton.setOnClickListener { onLoginClick() }
 
         val scopeGroup = findViewById<MaterialButtonToggleGroup>(R.id.scope)
         scopeGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             onScopeGroupChecked(scopeGroup, checkedId, isChecked)
         }
 
-        val loginButton = findViewById<Button>(R.id.login)
-        loginButton.setOnClickListener { onLoginClick() }
+        val loadButton = findViewById<Button>(R.id.load)
+        loadButton.setOnClickListener { onLoadClick(it) }
+
+        val saveButton = findViewById<Button>(R.id.save)
+        saveButton.setOnClickListener { onSaveClick(it) }
+
+        val addButton = findViewById<Button>(R.id.add)
+        addButton.setOnClickListener {
+            when (viewModel.scopeState.value) {
+                Scope.Char -> onAddGlyph(it)
+                Scope.Stroke -> onAddControlPoint(it)
+                Scope.Tag -> onAddTag(it)
+                else -> invalidClick(it)
+            }
+        }
+
+        val moveButton = findViewById<Button>(R.id.move)
+        moveButton.setOnClickListener {
+            when (viewModel.scopeState.value) {
+                Scope.Glyph -> onMoveStrokes(it)
+                Scope.Stroke -> onMoveControlPoint(it)
+                else -> invalidClick(it)
+            }
+        }
+
+        val deleteButton = findViewById<Button>(R.id.delete)
+        deleteButton.setOnClickListener {
+            when (viewModel.scopeState.value) {
+                Scope.Char -> onDeleteGlyph(it)
+                Scope.Glyph -> onDeleteStrokes(it)
+                Scope.Stroke -> onDeleteControlPoint(it)
+                Scope.Tag -> onDeleteTag(it)
+            }
+        }
+
+        val rotateButton = findViewById<Button>(R.id.rotate)
+        rotateButton.setOnClickListener {
+            if (viewModel.scopeState.value != Scope.Glyph) {
+                invalidClick(it)
+            } else {
+                onRotateStrokes(it)
+            }
+        }
+
+        val zoomButton = findViewById<Button>(R.id.zoom)
+        zoomButton.setOnClickListener {
+            if (viewModel.scopeState.value != Scope.Glyph) {
+                invalidClick(it)
+            } else {
+                onZoomStrokes(it)
+            }
+        }
+
+        val undoButton = findViewById<Button>(R.id.undo)
+        undoButton.setOnClickListener { onUndoClick(it) }
+
+        val importButton = findViewById<Button>(R.id.import_from)
+        importButton.setOnClickListener {
+            if (viewModel.scopeState.value != Scope.Glyph) {
+                invalidClick(it)
+            } else {
+                onImportGlyph(it)
+            }
+        }
+
+        val checkTags = findViewById<CheckBox>(R.id.tag_box)
+        checkTags.setOnCheckedChangeListener { buttonView, isChecked ->
+            // TODO: implement
+        }
+
+        val spinnerGlyph = findViewById<Spinner>(R.id.glyph_spinner)
+        spinnerGlyph.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // TODO: implement
+            }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                // TODO: implement
+            }
+        }
     }
 
     override fun onStart() {
@@ -119,7 +200,8 @@ class MainActivity : AppCompatActivity() {
                 when (checkedId) {
                     R.id.btn_char -> viewModel.setScope(Scope.Char)
                     R.id.btn_glyph -> viewModel.setScope(Scope.Glyph)
-                    else -> viewModel.setScope(Scope.Stroke)
+                    R.id.btn_stroke -> viewModel.setScope(Scope.Stroke)
+                    else -> viewModel.setScope(Scope.Tag)
                 }
             }
         }
@@ -134,6 +216,66 @@ class MainActivity : AppCompatActivity() {
             .setAvailableProviders(providers)
             .build()
         loginLauncher.launch(loginIntent)
+    }
+
+    private fun invalidClick(v: View) {
+        Toast.makeText(v.context, R.string.invalid_click, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun onSaveClick(v: View) {
+        // TODO: implement
+    }
+
+    private fun onAddGlyph(v: View) {
+        // TODO: implement
+    }
+
+    private fun onAddControlPoint(v: View) {
+        // TODO: implement
+    }
+
+    private fun onAddTag(v: View) {
+        // TODO: implement
+    }
+
+    private fun onMoveStrokes(v: View) {
+        // TODO: implement
+    }
+
+    private fun onMoveControlPoint(v: View) {
+        // TODO: implement
+    }
+
+    private fun onDeleteGlyph(v: View) {
+        // TODO: implement
+    }
+
+    private fun onDeleteControlPoint(v: View) {
+        // TODO: implement
+    }
+
+    private fun onDeleteStrokes(v: View) {
+        // TODO: implement
+    }
+
+    private fun onDeleteTag(v: View) {
+        // TODO: implement
+    }
+
+    private fun onRotateStrokes(v: View) {
+        // TODO: implement
+    }
+
+    private fun onZoomStrokes(v: View) {
+        // TODO: implement
+    }
+
+    private fun onUndoClick(v: View) {
+        // TODO: implement
+    }
+
+    private fun onImportGlyph(v: View) {
+        // TODO: implement
     }
 
     private fun onCharChange() {
@@ -157,6 +299,7 @@ class MainActivity : AppCompatActivity() {
             Scope.Char -> stroke.selected = false
             Scope.Glyph -> stroke.selected = false
             Scope.Stroke -> stroke.selected = true
+            Scope.Tag -> stroke.selected = false
         }
         paintView.refresh()
     }
