@@ -3,12 +3,14 @@ package com.resomi.chareditor
 import android.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ListView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -32,6 +34,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var paintView: PaintView
     private lateinit var viewModel: MainViewModel
     private lateinit var auth: FirebaseAuth
+    private lateinit var listTags: ListView
+    private lateinit var listTagsAdapter: ArrayAdapter<String>
 
     private val loginLauncher = registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
         res -> this.onLoginResult(res)
@@ -150,9 +154,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val checkTags = findViewById<CheckBox>(R.id.tag_box)
-        checkTags.setOnCheckedChangeListener { buttonView, isChecked ->
-            // TODO: implement
+        listTags = findViewById<ListView>(R.id.tag_box)
+        listTags.setOnItemClickListener { _, _, pos, _ ->
+            viewModel.charState.value.currentGlyph.currentTag = listTagsAdapter.getItem(pos) ?: ""
         }
 
         val spinnerGlyph = findViewById<Spinner>(R.id.glyph_spinner)
@@ -173,6 +177,8 @@ class MainActivity : AppCompatActivity() {
             currentUser.email?.let { updateLoginInfo(it) }
             viewModel.storage = Firebase.storage
         }
+        listTagsAdapter = ArrayAdapter(this, R.layout.list_item, R.id.textview)
+        listTags.adapter = listTagsAdapter
     }
 
     private fun onLoadClick(v: View) {
@@ -235,7 +241,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onAddTag(v: View) {
-        // TODO: implement
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(R.string.add_tag_title)
+        val input = EditText(this)
+        input.inputType = InputType.TYPE_CLASS_TEXT
+        builder.setView(input)
+        builder.setPositiveButton(R.string.ok) { _, _ ->
+            val newTag = input.text.toString()
+            val g = viewModel.charState.value.currentGlyph
+            if (g.tags.add(newTag)) {
+                listTagsAdapter.add(newTag)
+                g.currentTag = newTag
+            }
+        }
+        builder.setNegativeButton(R.string.cancel) { _, _ -> }
+        builder.show()
     }
 
     private fun onMoveStrokes(v: View) {
@@ -259,7 +279,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onDeleteTag(v: View) {
-        // TODO: implement
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(R.string.delete_tag_title)
+        val g = viewModel.charState.value.currentGlyph
+        val format = getString(R.string.delete_tag_prompt)
+        builder.setMessage(String.format(format, g.currentTag))
+        builder.setPositiveButton(R.string.yes) { _, _ ->
+            val glyph = viewModel.charState.value.currentGlyph
+            if (glyph.tags.remove(glyph.currentTag)) {
+                listTagsAdapter.clear()
+                listTagsAdapter.addAll(glyph.tags)
+                glyph.currentTag = listTagsAdapter.getItem(0) ?: ""
+            }
+        }
+        builder.setNegativeButton(R.string.no) { _, _ -> }
+        builder.show()
     }
 
     private fun onRotateStrokes(v: View) {
@@ -285,7 +319,8 @@ class MainActivity : AppCompatActivity() {
         val badge = "${c.text} ${c.code}"
         val charInfo: TextView = findViewById(R.id.char_info)
         charInfo.text = badge
-        // TODO: render tags
+        listTagsAdapter.clear()
+        listTagsAdapter.addAll(c.currentGlyph.tags)
         paintView.onCharChange()
     }
 

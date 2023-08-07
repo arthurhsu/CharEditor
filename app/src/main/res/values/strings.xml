@@ -18,4 +18,11 @@
     <string name="login">Log In Google</string>
     <string name="login_default">Not logged in</string>
     <string name="invalid_click">Operation has no effect in current scope</string>
+    <string name="add_tag_title">Add tag</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_tag_title">Delete tag</string>
+    <string name="delete_tag_prompt">Are you sure to delete tag %1$s!?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 =</resources>

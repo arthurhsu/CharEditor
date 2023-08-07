@@ -36,7 +36,7 @@ class Glyph private constructor() {
 
     fun toJSON(): JSONObject {
         val ret = JSONObject()
-        ret.put("tags", JSONArray(tags))
+        ret.put("tags", JSONArray(tags.toTypedArray()))
         val strokeJSON = ArrayList<JSONObject>()
         for (s in strokes) {
             strokeJSON.add(s.toJSON())
@@ -49,11 +49,8 @@ class Glyph private constructor() {
 
     lateinit var currentStroke: Stroke
     lateinit var futureStroke: Stroke
-    var tags = ArrayList<String>()
-
-    init {
-        tags.add("楷")
-    }
+    var tags = HashSet<String>(listOf("楷"))
+    var currentTag: String = "楷"
 
     fun isEmpty(): Boolean {
         return strokes.isEmpty()
