@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "268336585176",
+    "project_id": "cceditor-8ffcf",
+    "storage_bucket": "cceditor-8ffcf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268336585176:android:cb3725e91306cba8c1baad",
+        "android_client_info": {
+          "package_name": "com.resomi.chareditor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "268336585176-euvuue1ct229v20opes6rikr39k4tg2g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.resomi.chareditor",
+            "certificate_hash": "f96034a4f0e53f312e91d047ef6291f0639d5190"
+          }
+        },
+        {
+          "client_id": "268336585176-pt8jprsf8jl9srif2qg7560d65gsrhjh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEhJpwoTnBfruNABfCd2LnLgdCyjTGm7k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "268336585176-pt8jprsf8jl9srif2qg7560d65gsrhjh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

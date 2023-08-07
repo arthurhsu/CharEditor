@@ -6,4 +6,6 @@
     <string name="scope_char">Char</string>
     <string name="scope_stroke">Stroke</string>
     <string name="scope_glyph">Glyph</string>
-</resources>
+    <string name="login">Log In Google</string>
+    <string name="login_default">Not logged in</string>
+=</resources>
