@@ -58,7 +58,7 @@ class PaintView : SVGImageView {
             svg = SVG.getFromString(svgPreview.toString())
             previews.forEach { it.setSVG(svg) }
         } catch (e: Exception) {
-            Log.d(TAG, "SVG parser crash")
+            Log.d(TAG, "SVG parser crash: ${e.toString()}")
             Log.d(TAG, svgml.toString())
         }
     }
@@ -87,7 +87,6 @@ class PaintView : SVGImageView {
     }
 
     private fun strokeModeOnTouchEvent(ev: MotionEvent, x: Int, y: Int, rc: Rect): Boolean {
-        Log.i(TAG, "smot")
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
                 if (lastStroke != curStroke) {
@@ -119,10 +118,12 @@ class PaintView : SVGImageView {
     }
 
     private fun glyphModeOnTouchEvent(ev: MotionEvent, x: Int, y: Int, rc: Rect): Boolean {
-        Log.i(TAG, "gmot")
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
                 // TODO: select stroke
+                if (viewModel.charState.value.currentGlyph.select(toSVGCoordinates(x, y, rc))) {
+                    refresh()
+                }
             }
 
             else -> return false
@@ -131,7 +132,6 @@ class PaintView : SVGImageView {
     }
 
     private fun charModeOnTouchEvent(ev: MotionEvent, x:Int, y: Int, rc: Rect): Boolean {
-        Log.i(TAG, "cmot")
         return true
     }
 }

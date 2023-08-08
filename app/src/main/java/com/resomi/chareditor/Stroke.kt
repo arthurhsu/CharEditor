@@ -1,9 +1,14 @@
 package com.resomi.chareditor
 
 import android.graphics.Color
+import android.graphics.Rect
+import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.DecimalFormat
+import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class Stroke {
     companion object {
@@ -20,6 +25,8 @@ class Stroke {
             ret.selected = false
             return ret
         }
+
+        const val THRESHOLD = 4
     }
 
     fun toJSON() : JSONObject {
@@ -151,10 +158,41 @@ class Stroke {
 
         updateSplines(preview, scope)
         canvas.elements.addAll(splines)
-        if (!selected || preview) return
+        if (!selected || preview || scope != Scope.Stroke) return
 
         for (v in vertices) {
             canvas.elements.add(SVGMLCircle(v.x, v.y, Color.RED, 3))
         }
+    }
+
+    private fun isClosedTo(p1: Pt, p2: Pt, p: Pt): Boolean {
+        val x0 = p.x
+        val y0 = p.y
+        val x1 = p1.x
+        val y1 = p1.y
+        val x2 = p2.x
+        val y2 = p2.y
+        val rc = Rect(x1.coerceAtMost(x2), y1.coerceAtMost(y2),
+                      x1.coerceAtLeast(x2), y1.coerceAtLeast(y2))
+        if (rc.contains(Rect(x0, y0, x0, y0))) {
+            val d = abs((x2-x1)*(y1-y0)-(x1-x0)*(y2-y1)) /
+                    sqrt((x2 - x1).toDouble().pow(2.0) + (y2 - y1).toDouble().pow(2.0))
+            if (d < THRESHOLD) {
+                return true
+            }
+        }
+        return false
+    }
+
+
+    fun toggleSelect(p: Pt): Boolean {
+        for (i in 0 until vertices.size - 1) {
+            if (isClosedTo(vertices[i], vertices[i+1], p)) {
+                Log.d(TAG, "toggle select: stroke $i")
+                selected = !selected
+                return true
+            }
+        }
+        return false
     }
 }

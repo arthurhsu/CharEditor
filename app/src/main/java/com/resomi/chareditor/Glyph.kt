@@ -1,5 +1,6 @@
 package com.resomi.chareditor
 
+import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -66,5 +67,33 @@ class Glyph private constructor() {
         if (isEmpty()) return
         strokes.forEach { it.render(canvas, preview, scope) }
         futureStroke.render(canvas, preview, scope)
+    }
+
+    fun select(p: Pt): Boolean {
+        for (s in strokes) {
+            if (s.toggleSelect(p)) {
+                Log.i(TAG, "select hit: ${p.x}, ${p.y}")
+                return true
+            }
+        }
+        return false
+    }
+
+    fun deselectToOne() {
+        var count = 0
+        for (i in strokes.indices.reversed()) {
+            if (!strokes[i].selected) {
+                continue
+            }
+            if (count > 0) {
+                strokes[i].selected = false
+            }
+            count++
+            currentStroke = strokes[i]
+        }
+        if (count == 0) {
+            strokes.last().selected = true
+            currentStroke = strokes.last()
+        }
     }
 }

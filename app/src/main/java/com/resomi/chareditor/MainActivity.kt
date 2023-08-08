@@ -328,13 +328,8 @@ class MainActivity : AppCompatActivity() {
         val c = viewModel.charState.value
         if (c.isNada() || c.currentGlyph.isEmpty()) return
 
-        val s = viewModel.scopeState.value
-        val stroke = viewModel.charState.value.currentGlyph.currentStroke
-        when (s) {
-            Scope.Char -> stroke.selected = false
-            Scope.Glyph -> stroke.selected = false
-            Scope.Stroke -> stroke.selected = true
-            Scope.Tag -> stroke.selected = false
+        if (viewModel.scopeState.value == Scope.Stroke) {
+            viewModel.charState.value.currentGlyph.deselectToOne()
         }
         paintView.refresh()
     }
