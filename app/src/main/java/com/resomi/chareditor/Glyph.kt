@@ -4,7 +4,7 @@ import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 
-class Glyph private constructor() {
+class Glyph private constructor() : Op<Stroke>() {
     companion object {
         fun fromJSON(json: JSONObject): Glyph {
             val ret = Glyph()
@@ -13,12 +13,17 @@ class Glyph private constructor() {
             for (i in 0 until tags.length()) {
                 ret.tags.add(tags.getString(i))
             }
+            if (tags.length() > 0) {
+                ret.currentTag = ret.tags.first()
+            } else {
+                ret.currentTag = ""
+            }
             val strokes = json.getJSONArray("strokes")
             for (i in 0 until strokes.length()) {
                 ret.strokes.add(Stroke.fromJSON(strokes.getJSONObject(i)))
             }
-            if (strokes.length() > 0) {
-                ret.currentStroke = ret.strokes[strokes.length() - 1]
+            if (!ret.strokes.isEmpty()) {
+                ret.currentStroke = ret.strokes.last()
                 ret.futureStroke = ret.currentStroke
             } else {
                 ret.currentStroke = Stroke()
@@ -47,11 +52,24 @@ class Glyph private constructor() {
     }
 
     private val strokes = ArrayList<Stroke>()
+    private val actionQueue = ActionQueue(this)
 
     lateinit var currentStroke: Stroke
     lateinit var futureStroke: Stroke
     var tags = HashSet<String>(listOf("楷"))
     var currentTag: String = "楷"
+
+    fun clone(): Glyph {
+        val ret = getEmpty()
+        ret.strokes.addAll(strokes)
+        ret.tags.addAll(tags)
+        if (!ret.tags.isEmpty()) {
+            ret.currentTag = tags.first()
+        } else {
+            ret.currentTag = ""
+        }
+        return ret
+    }
 
     fun isEmpty(): Boolean {
         return strokes.isEmpty()
@@ -95,5 +113,43 @@ class Glyph private constructor() {
             strokes.last().selected = true
             currentStroke = strokes.last()
         }
+    }
+
+    override fun add(target: ArrayList<Stroke>) {
+        for (s in target) {
+            add(s)
+        }
+    }
+
+    fun add(s: Stroke) {
+        strokes.add(s)
+    }
+
+    override fun remove(target: ArrayList<Stroke>) {
+        for (s in target) {
+            remove(s)
+        }
+    }
+
+    fun remove(s: Stroke) {
+        // TODO: implement, keep stroke ordering
+    }
+
+    override fun replace(target: ArrayList<Stroke>) {
+        for (s in target) {
+            replace(s)
+        }
+    }
+
+    fun replace(s: Stroke) {
+        // TODO: implement, keep stroke ordering
+    }
+
+    override fun undo() {
+        actionQueue.undo()
+    }
+
+    override fun redo() {
+        actionQueue.redo()
     }
 }

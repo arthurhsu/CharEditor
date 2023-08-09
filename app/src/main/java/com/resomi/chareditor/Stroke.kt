@@ -50,6 +50,12 @@ class Stroke {
     private val df = DecimalFormat("#.##")
     var selected = true
 
+    fun clone(): Stroke {
+        val ret = Stroke()
+        ret.vertices.addAll(vertices)
+        return ret
+    }
+
     // Compute control points
     private fun computeControlPoints(v: ArrayList<Int>): Pair<FloatArray, FloatArray> {
         val n = v.size - 1
@@ -183,7 +189,6 @@ class Stroke {
         }
         return false
     }
-
 
     fun toggleSelect(p: Pt): Boolean {
         for (i in 0 until vertices.size - 1) {
