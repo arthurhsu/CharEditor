@@ -10,7 +10,7 @@ import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class Stroke {
+class Stroke : Op<Pt>() {
     companion object {
         fun fromJSON(json: JSONObject): Stroke {
             val ret = Stroke()
@@ -49,6 +49,7 @@ class Stroke {
     private var splines = ArrayList<SVGMLPath>()
     private val df = DecimalFormat("#.##")
     var selected = true
+    var selectedControlPoint = -1
 
     fun clone(): Stroke {
         val ret = Stroke()
@@ -166,8 +167,13 @@ class Stroke {
         canvas.elements.addAll(splines)
         if (!selected || preview || scope != Scope.Stroke) return
 
-        for (v in vertices) {
-            canvas.elements.add(SVGMLCircle(v.x, v.y, Color.RED, 3))
+        for (i in 0 until vertices.size) {
+            val v = vertices[i]
+            var color = Color.RED
+            if (i == selectedControlPoint) {
+                color = Color.BLUE
+            }
+            canvas.elements.add(SVGMLCircle(v.x, v.y, color, 3))
         }
     }
 
@@ -199,5 +205,47 @@ class Stroke {
             }
         }
         return false
+    }
+
+    fun toggleSelectControlPoint(p: Pt): Boolean {
+        for (i in 0 until vertices.size) {
+            val v = vertices[i]
+            val rc = Rect(v.x - THRESHOLD, v.y - THRESHOLD,
+                v.x + THRESHOLD, v.y + THRESHOLD)
+            if (rc.contains(p.x, p.y)) {
+                if (selectedControlPoint == i) {
+                    selectedControlPoint = -1
+                } else {
+                    selectedControlPoint = i
+                }
+                return true
+            }
+        }
+        return false
+    }
+
+    fun moveControlPointTo(p: Pt) {
+        if (selectedControlPoint == -1) return
+        vertices[selectedControlPoint] = p
+    }
+
+    override fun add(target: ArrayList<Pt>) {
+        TODO("Not yet implemented")
+    }
+
+    override fun remove(target: ArrayList<Pt>) {
+        TODO("Not yet implemented")
+    }
+
+    override fun replace(target: ArrayList<Pt>) {
+        TODO("Not yet implemented")
+    }
+
+    override fun undo() {
+        TODO("Not yet implemented")
+    }
+
+    override fun redo() {
+        TODO("Not yet implemented")
     }
 }

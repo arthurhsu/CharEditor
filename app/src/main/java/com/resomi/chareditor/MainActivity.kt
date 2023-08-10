@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.Spinner
@@ -95,11 +96,20 @@ class MainActivity : AppCompatActivity() {
         val saveButton = findViewById<Button>(R.id.save)
         saveButton.setOnClickListener { onSaveClick(it) }
 
+        val drawModeCheck = findViewById<CheckBox>(R.id.draw_mode)
+        drawModeCheck.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.drawMode = isChecked
+            if (isChecked) {
+                viewModel.charState.value.currentGlyph.deselect()
+                paintView.refresh()
+            }
+        }
+
         val addButton = findViewById<Button>(R.id.add)
         addButton.setOnClickListener {
             when (viewModel.scopeState.value) {
                 Scope.Char -> onAddGlyph(it)
-                Scope.Stroke -> onAddControlPoint(it)
+                Scope.Stroke -> onAddStrokeOrControlPoint(it)
                 Scope.Tag -> onAddTag(it)
                 else -> invalidClick(it)
             }
@@ -236,7 +246,7 @@ class MainActivity : AppCompatActivity() {
         // TODO: implement
     }
 
-    private fun onAddControlPoint(v: View) {
+    private fun onAddStrokeOrControlPoint(v: View) {
         // TODO: implement
     }
 
@@ -321,16 +331,14 @@ class MainActivity : AppCompatActivity() {
         charInfo.text = badge
         listTagsAdapter.clear()
         listTagsAdapter.addAll(c.currentGlyph.tags)
-        paintView.onCharChange()
+        paintView.refresh()
     }
 
     private fun onScopeChange() {
         val c = viewModel.charState.value
         if (c.isNada() || c.currentGlyph.isEmpty()) return
 
-        if (viewModel.scopeState.value == Scope.Stroke) {
-            viewModel.charState.value.currentGlyph.deselectToOne()
-        }
+        viewModel.charState.value.currentGlyph.deselect()
         paintView.refresh()
     }
 

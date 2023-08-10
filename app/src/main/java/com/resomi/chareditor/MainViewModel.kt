@@ -18,6 +18,7 @@ class MainViewModel : ViewModel() {
     private var char = MutableStateFlow(Character.nada())
     var scopeState: StateFlow<Scope> = scope.asStateFlow()
     var charState: StateFlow<Character> = char.asStateFlow()
+    var drawMode: Boolean = false
     lateinit var storage: FirebaseStorage
 
     private fun loadChar(s: String) {

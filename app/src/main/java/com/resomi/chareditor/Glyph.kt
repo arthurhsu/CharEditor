@@ -22,13 +22,9 @@ class Glyph private constructor() : Op<Stroke>() {
             for (i in 0 until strokes.length()) {
                 ret.strokes.add(Stroke.fromJSON(strokes.getJSONObject(i)))
             }
-            if (!ret.strokes.isEmpty()) {
-                ret.currentStroke = ret.strokes.last()
-                ret.futureStroke = ret.currentStroke
-            } else {
-                ret.currentStroke = Stroke()
-                ret.futureStroke = ret.currentStroke
-            }
+
+            ret.currentStroke = Stroke()
+            ret.futureStroke = ret.currentStroke
             return ret
         }
 
@@ -55,7 +51,7 @@ class Glyph private constructor() : Op<Stroke>() {
     private val actionQueue = ActionQueue(this)
 
     lateinit var currentStroke: Stroke
-    lateinit var futureStroke: Stroke
+    private lateinit var futureStroke: Stroke
     var tags = HashSet<String>(listOf("楷"))
     var currentTag: String = "楷"
 
@@ -75,9 +71,10 @@ class Glyph private constructor() : Op<Stroke>() {
         return strokes.isEmpty()
     }
 
-    fun commitFutureStroke(): Stroke {
-        strokes.add(futureStroke)
-        futureStroke = Stroke()
+    fun commitStroke(): Stroke {
+        strokes.add(currentStroke)
+        currentStroke = Stroke()
+        futureStroke = currentStroke
         return futureStroke
     }
 
@@ -91,28 +88,19 @@ class Glyph private constructor() : Op<Stroke>() {
         for (s in strokes) {
             if (s.toggleSelect(p)) {
                 Log.i(TAG, "select hit: ${p.x}, ${p.y}")
+                currentStroke = s
                 return true
             }
         }
         return false
     }
 
-    fun deselectToOne() {
-        var count = 0
-        for (i in strokes.indices.reversed()) {
-            if (!strokes[i].selected) {
-                continue
-            }
-            if (count > 0) {
-                strokes[i].selected = false
-            }
-            count++
-            currentStroke = strokes[i]
+    fun deselect() {
+        for (s in strokes) {
+            s.selected = false
         }
-        if (count == 0) {
-            strokes.last().selected = true
-            currentStroke = strokes.last()
-        }
+        currentStroke = Stroke()
+        futureStroke = currentStroke
     }
 
     override fun add(target: ArrayList<Stroke>) {

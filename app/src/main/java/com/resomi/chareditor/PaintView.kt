@@ -17,9 +17,8 @@ class PaintView : SVGImageView {
         const val W: Int = 512
     }
     private var lastPt = Pt(0, 0)
-    private var curGlyph = Glyph.getEmpty()
+    private lateinit var curGlyph: Glyph
     private lateinit var curStroke: Stroke
-    private lateinit var lastStroke: Stroke
     private var previews = ArrayList<Preview>()
     private lateinit var viewModel: MainViewModel
 
@@ -35,16 +34,13 @@ class PaintView : SVGImageView {
         previews.add(preview)
     }
 
-    fun onCharChange() {
+    fun refresh() {
         val c = viewModel.charState.value
         if (c.isNada()) return
+
         curGlyph = c.currentGlyph
         curStroke = curGlyph.currentStroke
-        lastStroke = curStroke
-        refresh()
-    }
 
-    fun refresh() {
         val svgml = SVGML()
         CanvasGuide.draw(svgml, W)
         curGlyph.render(svgml, false, viewModel.scopeState.value)
@@ -87,13 +83,55 @@ class PaintView : SVGImageView {
     }
 
     private fun strokeModeOnTouchEvent(ev: MotionEvent, x: Int, y: Int, rc: Rect): Boolean {
+        if (viewModel.drawMode) {
+            return drawModeOnTouchEvent(ev, x, y, rc)
+        }
+
+        if (curStroke.isEmpty()) {
+            // Select stroke
+            if (viewModel.charState.value.currentGlyph.select(toSVGCoordinates(x, y, rc))) {
+                refresh()
+                return true
+            }
+        }
+
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
-                if (lastStroke != curStroke) {
-                    lastStroke.selected = false
+                if (curStroke.toggleSelectControlPoint(toSVGCoordinates(x, y, rc))) {
+                    lastPt = toSVGCoordinates(x, y, rc)
                 }
+            }
+
+            MotionEvent.ACTION_MOVE -> {
+                if (curStroke.selectedControlPoint != -1) {
+                    val curPt = toSVGCoordinates(x, y, rc)
+                    if (max(abs(curPt.x - lastPt.x), abs(curPt.y - lastPt.y)) > 4) {
+                        lastPt = curPt
+                        curStroke.moveControlPointTo(lastPt)
+                    }
+                }
+            }
+
+            MotionEvent.ACTION_UP -> {
+                if (curStroke.selectedControlPoint != -1) {
+                    val curPt = toSVGCoordinates(x, y, rc)
+                    curStroke.moveControlPointTo(curPt)
+                    curStroke.selectedControlPoint = -1
+                }
+            }
+        }
+
+        refresh()
+        return true
+    }
+
+    private fun drawModeOnTouchEvent(ev: MotionEvent, x: Int, y: Int, rc: Rect): Boolean {
+        when (ev.action) {
+            MotionEvent.ACTION_DOWN -> {
+                curGlyph.deselect()
                 lastPt = toSVGCoordinates(x, y, rc)
                 curStroke.addV(lastPt)
+                curStroke.selected = true
             }
 
             MotionEvent.ACTION_MOVE -> {
@@ -107,8 +145,7 @@ class PaintView : SVGImageView {
             MotionEvent.ACTION_UP -> {
                 lastPt = toSVGCoordinates(x, y, rc)
                 curStroke.addV(lastPt)
-                lastStroke = curStroke
-                curStroke = curGlyph.commitFutureStroke()
+                curStroke = curGlyph.commitStroke()
             }
 
             else -> return false
