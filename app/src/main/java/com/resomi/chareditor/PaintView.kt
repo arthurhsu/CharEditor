@@ -107,7 +107,7 @@ class PaintView : SVGImageView {
                     val curPt = toSVGCoordinates(x, y, rc)
                     if (max(abs(curPt.x - lastPt.x), abs(curPt.y - lastPt.y)) > 4) {
                         lastPt = curPt
-                        curStroke.moveControlPointTo(lastPt)
+                        curStroke.moveControlPointTo(lastPt, false)
                     }
                 }
             }
@@ -115,7 +115,7 @@ class PaintView : SVGImageView {
             MotionEvent.ACTION_UP -> {
                 if (curStroke.selectedControlPoint != -1) {
                     val curPt = toSVGCoordinates(x, y, rc)
-                    curStroke.moveControlPointTo(curPt)
+                    curStroke.moveControlPointTo(curPt, true)
                     curStroke.selectedControlPoint = -1
                 }
             }

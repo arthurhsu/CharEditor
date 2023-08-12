@@ -119,7 +119,6 @@ class MainActivity : AppCompatActivity() {
         moveButton.setOnClickListener {
             when (viewModel.scopeState.value) {
                 Scope.Glyph -> onMoveStrokes(it)
-                Scope.Stroke -> onMoveControlPoint(it)
                 else -> invalidClick(it)
             }
         }
@@ -153,7 +152,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         val undoButton = findViewById<Button>(R.id.undo)
-        undoButton.setOnClickListener { onUndoClick(it) }
+        undoButton.setOnClickListener { onUndoClick() }
+
+        val redoButton = findViewById<Button>(R.id.redo)
+        redoButton.setOnClickListener { onRedoClick() }
 
         val importButton = findViewById<Button>(R.id.import_from)
         importButton.setOnClickListener {
@@ -164,7 +166,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        listTags = findViewById<ListView>(R.id.tag_box)
+        listTags = findViewById(R.id.tag_box)
         listTags.setOnItemClickListener { _, _, pos, _ ->
             viewModel.charState.value.currentGlyph.currentTag = listTagsAdapter.getItem(pos) ?: ""
         }
@@ -272,10 +274,6 @@ class MainActivity : AppCompatActivity() {
         // TODO: implement
     }
 
-    private fun onMoveControlPoint(v: View) {
-        // TODO: implement
-    }
-
     private fun onDeleteGlyph(v: View) {
         // TODO: implement
     }
@@ -314,8 +312,28 @@ class MainActivity : AppCompatActivity() {
         // TODO: implement
     }
 
-    private fun onUndoClick(v: View) {
-        // TODO: implement
+    private fun onUndoClick() {
+        val c = viewModel.charState.value
+        when (viewModel.scopeState.value) {
+            Scope.Glyph -> c.currentGlyph.undo()
+            Scope.Stroke -> {
+                c.currentGlyph.currentStroke.undo()
+                paintView.refresh()
+            }
+            else -> {}
+        }
+    }
+
+    private fun onRedoClick() {
+        val c = viewModel.charState.value
+        when (viewModel.scopeState.value) {
+            Scope.Glyph -> c.currentGlyph.redo()
+            Scope.Stroke -> {
+                c.currentGlyph.currentStroke.redo()
+                paintView.refresh()
+            }
+            else -> {}
+        }
     }
 
     private fun onImportGlyph(v: View) {

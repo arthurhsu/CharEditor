@@ -9,6 +9,7 @@
     <string name="delete">Delete</string>
     <string name="move">Move</string>
     <string name="undo">Undo</string>
+    <string name="redo">Redo</string>
     <string name="zoom">Zoom</string>
     <string name="rotate">Rotate</string>
     <string name="import_from">Import</string>

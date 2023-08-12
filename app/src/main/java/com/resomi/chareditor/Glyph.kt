@@ -4,7 +4,7 @@ import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 
-class Glyph private constructor() : Op<Stroke>() {
+class Glyph private constructor() : ActionQueue<Stroke>() {
     companion object {
         fun fromJSON(json: JSONObject): Glyph {
             val ret = Glyph()
@@ -48,7 +48,6 @@ class Glyph private constructor() : Op<Stroke>() {
     }
 
     private val strokes = ArrayList<Stroke>()
-    private val actionQueue = ActionQueue(this)
 
     lateinit var currentStroke: Stroke
     private lateinit var futureStroke: Stroke
@@ -103,41 +102,16 @@ class Glyph private constructor() : Op<Stroke>() {
         futureStroke = currentStroke
     }
 
-    override fun add(target: ArrayList<Stroke>) {
-        for (s in target) {
-            add(s)
-        }
-    }
-
     fun add(s: Stroke) {
         strokes.add(s)
-    }
-
-    override fun remove(target: ArrayList<Stroke>) {
-        for (s in target) {
-            remove(s)
-        }
+        super.add(strokes.size - 1, s, true)
     }
 
     fun remove(s: Stroke) {
         // TODO: implement, keep stroke ordering
     }
 
-    override fun replace(target: ArrayList<Stroke>) {
-        for (s in target) {
-            replace(s)
-        }
-    }
-
     fun replace(s: Stroke) {
         // TODO: implement, keep stroke ordering
-    }
-
-    override fun undo() {
-        actionQueue.undo()
-    }
-
-    override fun redo() {
-        actionQueue.redo()
     }
 }

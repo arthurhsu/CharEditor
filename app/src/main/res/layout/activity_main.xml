@@ -207,6 +207,17 @@
         style="@style/Widget.Material3.Button.ElevatedButton" />
 
     <Button
+        android:id="@+id/redo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:text="@string/redo"
+        app:layout_constraintTop_toBottomOf="@id/scope"
+        app:layout_constraintLeft_toRightOf="@id/undo"
+        style="@style/Widget.Material3.Button.ElevatedButton" />
+
+    <Button
         android:id="@+id/import_from"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -214,7 +225,7 @@
         android:layout_marginLeft="8dp"
         android:text="@string/import_from"
         app:layout_constraintTop_toBottomOf="@id/scope"
-        app:layout_constraintLeft_toRightOf="@id/undo"
+        app:layout_constraintLeft_toRightOf="@id/redo"
         style="@style/Widget.Material3.Button.ElevatedButton" />
 
     <Button

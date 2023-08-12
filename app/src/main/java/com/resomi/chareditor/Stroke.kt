@@ -10,7 +10,7 @@ import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class Stroke : Op<Pt>() {
+class Stroke : ActionQueue<Pt>() {
     companion object {
         fun fromJSON(json: JSONObject): Stroke {
             val ret = Stroke()
@@ -50,6 +50,7 @@ class Stroke : Op<Pt>() {
     private val df = DecimalFormat("#.##")
     var selected = true
     var selectedControlPoint = -1
+    var curPt = Pt(0, 0)
 
     fun clone(): Stroke {
         val ret = Stroke()
@@ -201,6 +202,9 @@ class Stroke : Op<Pt>() {
             if (isClosedTo(vertices[i], vertices[i+1], p)) {
                 Log.d(TAG, "toggle select: stroke $i")
                 selected = !selected
+                if (selected) {
+                    curPt = vertices[i]
+                }
                 return true
             }
         }
@@ -213,10 +217,10 @@ class Stroke : Op<Pt>() {
             val rc = Rect(v.x - THRESHOLD, v.y - THRESHOLD,
                 v.x + THRESHOLD, v.y + THRESHOLD)
             if (rc.contains(p.x, p.y)) {
-                if (selectedControlPoint == i) {
-                    selectedControlPoint = -1
+                selectedControlPoint = if (selectedControlPoint == i) {
+                    -1
                 } else {
-                    selectedControlPoint = i
+                    i
                 }
                 return true
             }
@@ -224,28 +228,17 @@ class Stroke : Op<Pt>() {
         return false
     }
 
-    fun moveControlPointTo(p: Pt) {
+    fun moveControlPointTo(p: Pt, end: Boolean) {
         if (selectedControlPoint == -1) return
         vertices[selectedControlPoint] = p
+        if (end) {
+            replace(selectedControlPoint, p, curPt, true)
+            curPt = p
+        }
     }
 
-    override fun add(target: ArrayList<Pt>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun remove(target: ArrayList<Pt>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun replace(target: ArrayList<Pt>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun undo() {
-        TODO("Not yet implemented")
-    }
-
-    override fun redo() {
-        TODO("Not yet implemented")
+    override fun replace(index: Int, target: Pt, original: Pt, rec: Boolean) {
+        super.replace(index, target, original, rec)
+        vertices[index] = target
     }
 }
