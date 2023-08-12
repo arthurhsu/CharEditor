@@ -16,8 +16,10 @@ val TAG = "CharEditor"
 class MainViewModel : ViewModel() {
     private var scope = MutableStateFlow(Scope.Char)
     private var char = MutableStateFlow(Character.nada())
+    private var msg = MutableStateFlow("")
     var scopeState: StateFlow<Scope> = scope.asStateFlow()
     var charState: StateFlow<Character> = char.asStateFlow()
+    var msgState: StateFlow<String> = msg.asStateFlow()
     var drawMode: Boolean = false
     lateinit var storage: FirebaseStorage
 
@@ -48,9 +50,32 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    private fun saveChar() {
+        if (char.value.isNada()) return
+
+        msg.value = ""
+        val code = char.value.code
+        val file = "stage/$code.json"
+        val ref = storage.reference.child(file)
+        val json = char.value.toJSON().toString().encodeToByteArray()
+        ref.putBytes(json).addOnSuccessListener {
+            msg.value = R.string.save_success.toString()
+            Log.i(TAG, "save success")
+        }.addOnFailureListener {
+            Log.e(TAG, it.toString())
+            msg.value = R.string.save_failed.toString()
+        }
+    }
+
     fun load(s: String) {
         thread(true) {
             loadChar(s)
+        }
+    }
+
+    fun save() {
+        thread(true) {
+            saveChar()
         }
     }
 

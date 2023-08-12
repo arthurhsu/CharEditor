@@ -27,4 +27,6 @@
     <string name="delete_tag_prompt">Are you sure to delete tag %1$s!?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="save_success">Save successfully</string>
+    <string name="save_failed">Save failed</string>
 =</resources>

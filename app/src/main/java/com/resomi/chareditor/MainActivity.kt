@@ -53,14 +53,17 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                merge(viewModel.charState, viewModel.scopeState).collectLatest {
+                merge(viewModel.charState, viewModel.scopeState, viewModel.msgState).collectLatest {
                     if (it is Character) {
                         Log.i(TAG, "char change ${it.text}")
                         onCharChange()
                     }
                     if (it is Scope) {
-                        Log.i(TAG, "scope change $it")
+                        Log.i(TAG, "scope change ${it.toString()}")
                         onScopeChange()
+                    }
+                    if (it is String) {
+                        onRequestToast(it)
                     }
                 }
             }
@@ -193,6 +196,13 @@ class MainActivity : AppCompatActivity() {
         listTags.adapter = listTagsAdapter
     }
 
+    private fun onRequestToast(s: String) {
+        if (s.isEmpty()) return
+
+        val msg = getString(viewModel.msgState.value.toInt())
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    }
+
     private fun onLoadClick(v: View) {
         val builder = AlertDialog.Builder(v.context)
         val inflater = layoutInflater
@@ -202,6 +212,7 @@ class MainActivity : AppCompatActivity() {
         builder.setView(dialogLayout)
         builder.setPositiveButton("OK") { _, _ ->
             if (editText.text.length == 1) {
+                // TODO: implement loading from stage
                 viewModel.load(editText.text.toString())
             }
         }
@@ -241,7 +252,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onSaveClick(v: View) {
-        // TODO: implement
+        viewModel.save()
     }
 
     private fun onAddGlyph(v: View) {
