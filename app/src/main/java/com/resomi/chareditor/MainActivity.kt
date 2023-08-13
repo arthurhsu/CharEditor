@@ -244,7 +244,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onSaveClick(v: View) {
-        viewModel.save()
+        if (viewModel.stageChars.contains(viewModel.charState.value.code)) {
+            // Validate for overwriting
+            val builder = AlertDialog.Builder(v.context)
+            builder.setTitle(R.string.overwrite_title)
+            builder.setMessage(R.string.overwrite_message)
+            builder.setPositiveButton(R.string.yes) { _, _ ->
+                viewModel.save()
+            }
+            builder.setNegativeButton(R.string.no) { _, _ -> }
+            builder.show()
+        } else {
+            viewModel.save()
+        }
     }
 
     private fun onAddGlyph(v: View) {
@@ -369,6 +381,7 @@ class MainActivity : AppCompatActivity() {
             if (currentUser != null) {
                 currentUser.email?.let { updateLoginInfo(it) }
                 viewModel.storage = Firebase.storage
+                viewModel.list()
             }
         } else {
             val resp = r.idpResponse

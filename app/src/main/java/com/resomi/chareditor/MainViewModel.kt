@@ -7,8 +7,10 @@ import com.google.firebase.storage.StorageException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import java.lang.Exception
+import java.util.concurrent.CompletableFuture
 import kotlin.concurrent.thread
 
 val TAG = "CharEditor"
@@ -22,6 +24,8 @@ class MainViewModel : ViewModel() {
     var msgState: StateFlow<String> = msg.asStateFlow()
     var drawMode: Boolean = false
     lateinit var storage: FirebaseStorage
+    val serverChars = HashSet<String>()
+    val stageChars = HashSet<String>()
 
     private fun loadChar(s: String) {
         if (storage == null) return
@@ -60,11 +64,32 @@ class MainViewModel : ViewModel() {
         val json = char.value.toJSON().toString().encodeToByteArray()
         ref.putBytes(json).addOnSuccessListener {
             msg.value = R.string.save_success.toString()
-            Log.i(TAG, "save success")
+            stageChars.add(code)
         }.addOnFailureListener {
             Log.e(TAG, it.toString())
             msg.value = R.string.save_failed.toString()
         }
+    }
+
+    private fun listDirOnServer(dir: String): CompletableFuture<ArrayList<String>> {
+        val promise = CompletableFuture<ArrayList<String>>()
+        thread(true) {
+            val ref = storage.reference.child(dir)
+            val ret = ArrayList<String>()
+            ref.listAll()
+                .addOnSuccessListener {
+                    for (item in it.items) {
+                        ret.add(item.name.substring(0, 4))
+                    }
+                    Log.i(TAG, "list $dir done")
+                    promise.complete(ret)
+                }
+                .addOnFailureListener {
+                    Log.e(TAG, "unable to list $dir, error: ${it.toString()}")
+                    promise.complete(ret)
+                }
+        }
+        return promise
     }
 
     fun load(s: String) {
@@ -76,6 +101,34 @@ class MainViewModel : ViewModel() {
     fun save() {
         thread(true) {
             saveChar()
+        }
+    }
+
+    fun list() {
+        msg.value = ""
+
+        val futures = ArrayList<CompletableFuture<ArrayList<String>>>()
+        serverChars.clear()
+        stageChars.clear()
+
+        for (i in 4..9) {
+            val p = listDirOnServer("data/$i")
+            p.thenAccept {
+                runBlocking {
+                    serverChars.addAll(it)
+                }
+            }
+            futures.add(p)
+        }
+        val q = listDirOnServer("/stage")
+        futures.add(q)
+        q.thenAccept {
+            stageChars.clear()
+            stageChars.addAll(it)
+        }
+
+        CompletableFuture.allOf(*futures.toTypedArray()).thenAccept {
+            msg.value = R.string.list_success.toString()
         }
     }
 

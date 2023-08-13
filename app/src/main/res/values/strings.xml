@@ -29,4 +29,7 @@
     <string name="no">No</string>
     <string name="save_success">Save successfully</string>
     <string name="save_failed">Save failed</string>
-=</resources>
+    <string name="list_success">Retrieved char list from server</string>
+    <string name="overwrite_title">Confirm overwrite</string>
+    <string name="overwrite_message">Char already staged, overwrite?</string>
+</resources>
