@@ -118,14 +118,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val moveButton = findViewById<Button>(R.id.move)
-        moveButton.setOnClickListener {
-            when (viewModel.scopeState.value) {
-                Scope.Glyph -> onMoveStrokes(it)
-                else -> invalidClick(it)
-            }
-        }
-
         val deleteButton = findViewById<Button>(R.id.delete)
         deleteButton.setOnClickListener {
             when (viewModel.scopeState.value) {
@@ -279,10 +271,6 @@ class MainActivity : AppCompatActivity() {
         }
         builder.setNegativeButton(R.string.cancel) { _, _ -> }
         builder.show()
-    }
-
-    private fun onMoveStrokes(v: View) {
-        // TODO: implement
     }
 
     private fun onDeleteGlyph(v: View) {
