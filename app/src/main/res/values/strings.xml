@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">CharEditor</string>
-    <string name="char_picker">Enter Kanji to edit</string>
-    <string name="char_picker_hint">Enter one Kanji char here</string>
+    <string name="char_picker_title">Enter Kanji to edit</string>
+    <string name="char_picker_message">Enter one Kanji char here</string>
     <string name="load">Load</string>
     <string name="save">Save</string>
     <string name="draw">Draw</string>

@@ -196,18 +196,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onLoadClick(v: View) {
+        val editText = EditText(this)
         val builder = AlertDialog.Builder(v.context)
-        val inflater = layoutInflater
-        builder.setTitle(R.string.char_picker)
-        val dialogLayout = inflater.inflate(R.layout.char_picker, null)
-        val editText = dialogLayout.findViewById<EditText>(R.id.edit_char)
-        builder.setView(dialogLayout)
-        builder.setPositiveButton("OK") { _, _ ->
-            if (editText.text.length == 1) {
-                // TODO: implement loading from stage
-                viewModel.load(editText.text.toString())
+        builder.setTitle(R.string.char_picker_title)
+            .setMessage(R.string.char_picker_message)
+            .setView(editText)
+            .setPositiveButton("OK") { _, _ ->
+                if (editText.text.length == 1) {
+                    // TODO: implement loading from stage
+                    viewModel.load(editText.text.toString())
+                }
             }
-        }
         builder.show()
     }
 
@@ -248,11 +247,12 @@ class MainActivity : AppCompatActivity() {
             // Validate for overwriting
             val builder = AlertDialog.Builder(v.context)
             builder.setTitle(R.string.overwrite_title)
-            builder.setMessage(R.string.overwrite_message)
-            builder.setPositiveButton(R.string.yes) { _, _ ->
-                viewModel.save()
-            }
-            builder.setNegativeButton(R.string.no) { _, _ -> }
+                .setMessage(R.string.overwrite_message)
+                .setPositiveButton(R.string.yes) { _, _ ->
+                    viewModel.save()
+                }
+                .setNegativeButton(R.string.no) { _, _ -> }
+
             builder.show()
         } else {
             viewModel.save()
@@ -269,19 +269,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun onAddTag(v: View) {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle(R.string.add_tag_title)
         val input = EditText(this)
         input.inputType = InputType.TYPE_CLASS_TEXT
-        builder.setView(input)
-        builder.setPositiveButton(R.string.ok) { _, _ ->
-            val newTag = input.text.toString()
-            val g = viewModel.charState.value.currentGlyph
-            if (g.tags.add(newTag)) {
-                listTagsAdapter.add(newTag)
-                g.currentTag = newTag
+        builder.setTitle(R.string.add_tag_title)
+            .setView(input)
+            .setPositiveButton(R.string.ok) { _, _ ->
+                val newTag = input.text.toString()
+                val g = viewModel.charState.value.currentGlyph
+                if (g.tags.add(newTag)) {
+                    listTagsAdapter.add(newTag)
+                    g.currentTag = newTag
+                }
             }
-        }
-        builder.setNegativeButton(R.string.cancel) { _, _ -> }
+            .setNegativeButton(R.string.cancel) { _, _ -> }
         builder.show()
     }
 
@@ -299,19 +299,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun onDeleteTag(v: View) {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle(R.string.delete_tag_title)
         val g = viewModel.charState.value.currentGlyph
         val format = getString(R.string.delete_tag_prompt)
-        builder.setMessage(String.format(format, g.currentTag))
-        builder.setPositiveButton(R.string.yes) { _, _ ->
-            val glyph = viewModel.charState.value.currentGlyph
-            if (glyph.tags.remove(glyph.currentTag)) {
-                listTagsAdapter.clear()
-                listTagsAdapter.addAll(glyph.tags)
-                glyph.currentTag = listTagsAdapter.getItem(0) ?: ""
+        builder.setTitle(R.string.delete_tag_title)
+            .setMessage(String.format(format, g.currentTag))
+            .setPositiveButton(R.string.yes) { _, _ ->
+                val glyph = viewModel.charState.value.currentGlyph
+                if (glyph.tags.remove(glyph.currentTag)) {
+                    listTagsAdapter.clear()
+                    listTagsAdapter.addAll(glyph.tags)
+                    glyph.currentTag = listTagsAdapter.getItem(0) ?: ""
+                }
             }
-        }
-        builder.setNegativeButton(R.string.no) { _, _ -> }
+            .setNegativeButton(R.string.no) { _, _ -> }
         builder.show()
     }
 
