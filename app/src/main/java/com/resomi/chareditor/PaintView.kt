@@ -16,6 +16,7 @@ class PaintView : SVGImageView {
     companion object {
         const val W: Int = 512
     }
+    private var startPt = Pt(0, 0)
     private var lastPt = Pt(0, 0)
     private lateinit var curGlyph: Glyph
     private lateinit var curStroke: Stroke
@@ -128,7 +129,7 @@ class PaintView : SVGImageView {
     private fun drawModeOnTouchEvent(ev: MotionEvent, x: Int, y: Int, rc: Rect): Boolean {
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
-                curGlyph.deselect()
+                curGlyph.deselectStrokes()
                 lastPt = toSVGCoordinates(x, y, rc)
                 curStroke.addV(lastPt)
                 curStroke.selected = true
@@ -157,12 +158,43 @@ class PaintView : SVGImageView {
     private fun glyphModeOnTouchEvent(ev: MotionEvent, x: Int, y: Int, rc: Rect): Boolean {
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
-                // TODO: select stroke
-                if (viewModel.charState.value.currentGlyph.select(toSVGCoordinates(x, y, rc))) {
-                    refresh()
+                val g = viewModel.charState.value.currentGlyph
+                g.select(toSVGCoordinates(x, y, rc))
+                if (g.hasSelectedStrokes() && viewModel.drawMode) {
+                    g.snapshotStrokes()
+                    lastPt = Pt(x, y)
+                    startPt = Pt(x, y)
+                }
+                refresh()
+            }
+
+            MotionEvent.ACTION_MOVE -> {
+                val g = viewModel.charState.value.currentGlyph
+                if (g.hasSelectedStrokes() && viewModel.drawMode) {
+                    if (max(abs(x - lastPt.x), abs(y - lastPt.y)) > 4) {
+                        val deltaX = x - lastPt.x
+                        val deltaY = y - lastPt.y
+                        g.moveStrokes(deltaX, deltaY)
+                        lastPt = Pt(x, y)
+                        refresh()
+                    }
                 }
             }
 
+            MotionEvent.ACTION_UP -> {
+                val g = viewModel.charState.value.currentGlyph
+                if (g.hasSelectedStrokes() && viewModel.drawMode) {
+                    val deltaX = x - lastPt.x
+                    val deltaY = y - lastPt.y
+                    if (max(abs(x - startPt.x), abs(y - startPt.y)) > 4) {
+                        g.moveStrokes(deltaX, deltaY)
+                        g.recordMove()
+                    }
+                }
+                startPt = Pt(0, 0)
+                lastPt = Pt(0, 0)
+                refresh()
+            }
             else -> return false
         }
         return true

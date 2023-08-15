@@ -102,8 +102,8 @@ class MainActivity : AppCompatActivity() {
         val drawModeCheck = findViewById<CheckBox>(R.id.draw_mode)
         drawModeCheck.setOnCheckedChangeListener { _, isChecked ->
             viewModel.drawMode = isChecked
-            if (isChecked) {
-                viewModel.charState.value.currentGlyph.deselect()
+            if (isChecked && viewModel.scopeState.value == Scope.Stroke) {
+                viewModel.charState.value.currentGlyph.deselectStrokes()
                 paintView.refresh()
             }
         }
@@ -217,11 +217,25 @@ class MainActivity : AppCompatActivity() {
             if (c.isNada() && checkedId != R.id.btn_char) {
                 scopeGroup.check(R.id.btn_char)
             } else {
+                val checkBox = findViewById<CheckBox>(R.id.draw_mode)
+                checkBox.isEnabled = true
                 when (checkedId) {
-                    R.id.btn_char -> viewModel.setScope(Scope.Char)
-                    R.id.btn_glyph -> viewModel.setScope(Scope.Glyph)
-                    R.id.btn_stroke -> viewModel.setScope(Scope.Stroke)
-                    else -> viewModel.setScope(Scope.Tag)
+                    R.id.btn_char -> {
+                        viewModel.setScope(Scope.Char)
+                        checkBox.text = getString(R.string.move)
+                    }
+                    R.id.btn_glyph -> {
+                        viewModel.setScope(Scope.Glyph)
+                        checkBox.text = getString(R.string.move)
+                    }
+                    R.id.btn_stroke -> {
+                        viewModel.setScope(Scope.Stroke)
+                        checkBox.text = getString(R.string.draw)
+                    }
+                    else -> {
+                        viewModel.setScope(Scope.Tag)
+                        checkBox.isEnabled = false
+                    }
                 }
             }
         }
@@ -326,7 +340,10 @@ class MainActivity : AppCompatActivity() {
     private fun onUndoClick() {
         val c = viewModel.charState.value
         when (viewModel.scopeState.value) {
-            Scope.Glyph -> c.currentGlyph.undo()
+            Scope.Glyph -> {
+                c.currentGlyph.undo()
+                paintView.refresh()
+            }
             Scope.Stroke -> {
                 c.currentGlyph.currentStroke.undo()
                 paintView.refresh()
@@ -338,7 +355,10 @@ class MainActivity : AppCompatActivity() {
     private fun onRedoClick() {
         val c = viewModel.charState.value
         when (viewModel.scopeState.value) {
-            Scope.Glyph -> c.currentGlyph.redo()
+            Scope.Glyph -> {
+                c.currentGlyph.redo()
+                paintView.refresh()
+            }
             Scope.Stroke -> {
                 c.currentGlyph.currentStroke.redo()
                 paintView.refresh()
@@ -367,7 +387,7 @@ class MainActivity : AppCompatActivity() {
         val c = viewModel.charState.value
         if (c.isNada() || c.currentGlyph.isEmpty()) return
 
-        viewModel.charState.value.currentGlyph.deselect()
+        viewModel.charState.value.currentGlyph.deselectStrokes()
         paintView.refresh()
     }
 

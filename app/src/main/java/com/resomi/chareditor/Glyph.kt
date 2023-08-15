@@ -3,6 +3,7 @@ package com.resomi.chareditor
 import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
+import java.security.InvalidAlgorithmParameterException
 
 class Glyph private constructor() : ActionQueue<Stroke>() {
     companion object {
@@ -48,6 +49,7 @@ class Glyph private constructor() : ActionQueue<Stroke>() {
     }
 
     private val strokes = ArrayList<Stroke>()
+    private val snapshot = HashMap<Int, Stroke>()
 
     lateinit var currentStroke: Stroke
     private lateinit var futureStroke: Stroke
@@ -71,7 +73,7 @@ class Glyph private constructor() : ActionQueue<Stroke>() {
     }
 
     fun commitStroke(): Stroke {
-        strokes.add(currentStroke)
+        add(strokes.size, currentStroke, true)
         currentStroke = Stroke()
         futureStroke = currentStroke
         return futureStroke
@@ -94,7 +96,11 @@ class Glyph private constructor() : ActionQueue<Stroke>() {
         return false
     }
 
-    fun deselect() {
+    fun hasSelectedStrokes() : Boolean {
+        return strokes.any { it.selected }
+    }
+
+    fun deselectStrokes() {
         for (s in strokes) {
             s.selected = false
         }
@@ -102,16 +108,53 @@ class Glyph private constructor() : ActionQueue<Stroke>() {
         futureStroke = currentStroke
     }
 
-    fun add(s: Stroke) {
-        strokes.add(s)
-        super.add(strokes.size - 1, s, true)
+    fun snapshotStrokes() {
+        snapshot.clear()
+        for (i in 0 until strokes.size) {
+            if (strokes[i].selected) {
+                snapshot.set(i, strokes[i].clone())
+            }
+        }
     }
 
-    fun remove(s: Stroke) {
-        // TODO: implement, keep stroke ordering
+    fun moveStrokes(deltaX: Int, deltaY: Int) {
+        for (s in strokes) {
+            if (s.selected) {
+                s.move(deltaX, deltaY)
+            }
+        }
     }
 
-    fun replace(s: Stroke) {
-        // TODO: implement, keep stroke ordering
+    fun recordMove() {
+        for (entry in snapshot) {
+            super.replace(entry.key, strokes[entry.key], entry.value, true)
+        }
+        snapshot.clear()
+    }
+
+    override fun toString(): String {
+        return "strokes: ${strokes.size} tags: ${tags.toString()}"
+    }
+
+    override fun add(index: Int, target: Stroke, rec: Boolean) {
+        if (index == strokes.size) {
+            strokes.add(target)
+        } else {
+            strokes.add(index, target)
+        }
+        super.add(index, target, rec)
+    }
+
+    override fun remove(index: Int, target: Stroke, rec: Boolean) {
+        if (index < 0 || index >= strokes.size) {
+            throw InvalidAlgorithmParameterException("remove stroke $index out of range")
+        }
+        strokes.removeAt(index)
+        super.remove(index, target, rec)
+    }
+
+    override fun replace(index: Int, target: Stroke, original: Stroke, rec: Boolean) {
+        strokes[index] = target
+        super.replace(index, target, original, rec)
     }
 }

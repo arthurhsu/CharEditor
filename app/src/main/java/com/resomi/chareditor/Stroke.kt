@@ -237,6 +237,16 @@ class Stroke : ActionQueue<Pt>() {
         }
     }
 
+    fun move(deltaX: Int, deltaY: Int) {
+        for (i in 0 until vertices.size) {
+            vertices[i] = Pt(vertices[i].x + deltaX, vertices[i].y + deltaY)
+        }
+    }
+
+    override fun toString() : String {
+        return "${vertices[0].toString()}-${vertices[vertices.size-1].toString()}"
+    }
+
     override fun replace(index: Int, target: Pt, original: Pt, rec: Boolean) {
         super.replace(index, target, original, rec)
         vertices[index] = target

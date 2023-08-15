@@ -1,5 +1,6 @@
 package com.resomi.chareditor
 
+import android.util.Log
 import java.util.Stack
 
 open class ActionQueue<T> {
@@ -22,11 +23,17 @@ open class ActionQueue<T> {
         return task
     }
 
+    private fun taskToString(task: Triple<Int, T, T>): String {
+        return "${task.component1()},${task.component2().toString()},${task.component3().toString()}"
+    }
+
     fun undo() {
         if (actionQueue.isEmpty()) return
 
         val task = actionQueue.pop()
         undoQueue.push(task)
+        Log.i(TAG,
+            "undo: ${Action.reverse[task.first].toString()}, ${taskToString(reverse(task.second))}")
         doAction(Action.reverse[task.first], reverse(task.second))
     }
 
@@ -35,10 +42,13 @@ open class ActionQueue<T> {
 
         val task = undoQueue.pop()
         actionQueue.push(task)
+        Log.i(TAG,
+            "redo: ${Action.reverse[task.first].toString()}, ${taskToString(reverse(task.second))}")
         doAction(task.first, task.second)
     }
 
     private fun record(action: Action, index: Int, target: T, original: T) {
+        Log.i(TAG, "${action.toString()}, $index, ${target.toString()}, ${original.toString()}")
         actionQueue.push(Pair(action, Triple(index, target, original)))
     }
 
