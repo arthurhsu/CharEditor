@@ -202,9 +202,6 @@ class Stroke : ActionQueue<Pt>() {
             if (isClosedTo(vertices[i], vertices[i+1], p)) {
                 Log.d(TAG, "toggle select: stroke $i")
                 selected = !selected
-                if (selected) {
-                    curPt = vertices[i]
-                }
                 return true
             }
         }
@@ -221,6 +218,9 @@ class Stroke : ActionQueue<Pt>() {
                     -1
                 } else {
                     i
+                }
+                if (selectedControlPoint != -1) {
+                    curPt = vertices[selectedControlPoint]
                 }
                 return true
             }
@@ -244,6 +244,9 @@ class Stroke : ActionQueue<Pt>() {
     }
 
     override fun toString() : String {
+        if (vertices.isEmpty()) {
+            return "NaN-NaN"
+        }
         return "${vertices[0].toString()}-${vertices[vertices.size-1].toString()}"
     }
 

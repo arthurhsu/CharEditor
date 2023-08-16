@@ -345,7 +345,11 @@ class MainActivity : AppCompatActivity() {
                 paintView.refresh()
             }
             Scope.Stroke -> {
-                c.currentGlyph.currentStroke.undo()
+                if (viewModel.drawMode) {
+                    c.currentGlyph.undo()
+                } else {
+                    c.currentGlyph.currentStroke.undo()
+                }
                 paintView.refresh()
             }
             else -> {}

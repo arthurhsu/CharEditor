@@ -88,8 +88,10 @@ class Glyph private constructor() : ActionQueue<Stroke>() {
     fun select(p: Pt): Boolean {
         for (s in strokes) {
             if (s.toggleSelect(p)) {
-                Log.i(TAG, "select hit: ${p.x}, ${p.y}")
-                currentStroke = s
+                Log.i(TAG, "select hit: ${p.x}, ${p.y} ${s.selected}")
+                if (s.selected) {
+                    currentStroke = s
+                }
                 return true
             }
         }
@@ -100,12 +102,14 @@ class Glyph private constructor() : ActionQueue<Stroke>() {
         return strokes.any { it.selected }
     }
 
-    fun deselectStrokes() {
+    fun deselectStrokes() : Stroke {
         for (s in strokes) {
             s.selected = false
         }
         currentStroke = Stroke()
         futureStroke = currentStroke
+        futureStroke.selected = true
+        return futureStroke
     }
 
     fun snapshotStrokes() {
