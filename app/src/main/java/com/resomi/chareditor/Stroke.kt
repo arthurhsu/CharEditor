@@ -7,7 +7,9 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.text.DecimalFormat
 import kotlin.math.abs
+import kotlin.math.cos
 import kotlin.math.pow
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 class Stroke : ActionQueue<Pt>() {
@@ -275,5 +277,36 @@ class Stroke : ActionQueue<Pt>() {
     override fun remove(index: Int, target: Pt, rec: Boolean) {
         super.remove(index, target, rec)
         vertices.removeAt(index)
+    }
+
+    /*
+    private fun transform(v: Int, pct: Int): Int {
+        return (256F + (v.toFloat() - 256F) * (pct.toFloat() / 100F)).toInt()
+    }
+
+    fun zoom(pct: Int, zoomX: Boolean, zoomY: Boolean) {
+        for (v in vertices) {
+            var x = v.x
+            var y = v.y
+            if (zoomX) x = transform(x, pct)
+            if (zoomY) y = transform(y, pct)
+            v.x = x
+            v.y = y
+        }
+    }
+
+     */
+
+    fun rotate(deg: Int) {
+        for (i in 0 until vertices.size) {
+            val v = vertices[i]
+            val cosT = cos(deg.toDouble() * Math.PI / 100.0)
+            val sinT = sin(deg.toDouble() * Math.PI / 100.0)
+            var x = v.x
+            var y = v.y
+            x = ((x.toDouble() - 256.0) * cosT - (y.toDouble() - 256.0) * sinT + 256.0).toInt()
+            y = ((x.toDouble() - 256.0) * sinT + (y.toDouble() - 256.0) * cosT + 256.0).toInt()
+            vertices[i] = Pt(x, y)
+        }
     }
 }

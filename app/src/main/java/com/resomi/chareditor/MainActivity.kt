@@ -335,7 +335,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onRotateStrokes(v: View) {
-        // TODO: implement
+        val g = viewModel.charState.value.currentGlyph
+        if (!g.hasSelectedStrokes()) return
+
+        val builder = AlertDialog.Builder(this)
+        val input = EditText(this)
+        input.inputType = InputType.TYPE_CLASS_TEXT
+        builder.setTitle(R.string.rotate_title)
+            .setMessage(R.string.rotate_message)
+            .setView(input)
+            .setPositiveButton(R.string.ok) { _, _ ->
+                val degree = input.text.toString().toInt()
+                if (degree < -360 || degree > 360) {
+                    Toast.makeText(this, R.string.invalid_input, Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                g.rotateSelectedStrokes(degree)
+                paintView.refresh()
+            }
+            .setNegativeButton(R.string.cancel) { _, _ -> }
+        builder.show()
     }
 
     private fun onZoomStrokes(v: View) {

@@ -172,4 +172,15 @@ class Glyph private constructor() : ActionQueue<Stroke>() {
         strokes[index] = target
         super.replace(index, target, original, rec)
     }
+
+    fun rotateSelectedStrokes(deg: Int) {
+        snapshotStrokes()
+        for (i in 0 until strokes.size) {
+            val s = strokes[i]
+            if (s.selected) {
+                s.rotate(deg)
+                snapshot[i]?.let { super.replace(i, s, it, true) }
+            }
+        }
+    }
 }
