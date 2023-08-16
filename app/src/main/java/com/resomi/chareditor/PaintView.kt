@@ -18,6 +18,8 @@ class PaintView : SVGImageView {
     }
     private var startPt = Pt(0, 0)
     private var lastPt = Pt(0, 0)
+    private lateinit var curGlyph: Glyph
+    private lateinit var curStroke: Stroke
     private var previews = ArrayList<Preview>()
     private lateinit var viewModel: MainViewModel
 
