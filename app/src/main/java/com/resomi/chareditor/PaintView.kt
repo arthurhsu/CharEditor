@@ -18,8 +18,6 @@ class PaintView : SVGImageView {
     }
     private var startPt = Pt(0, 0)
     private var lastPt = Pt(0, 0)
-    private lateinit var curGlyph: Glyph
-    private lateinit var curStroke: Stroke
     private var previews = ArrayList<Preview>()
     private lateinit var viewModel: MainViewModel
 
@@ -39,8 +37,7 @@ class PaintView : SVGImageView {
         val c = viewModel.charState.value
         if (c.isNada()) return
 
-        curGlyph = c.currentGlyph
-        curStroke = curGlyph.currentStroke
+        val curGlyph = c.currentGlyph
 
         val svgml = SVGML()
         CanvasGuide.draw(svgml, W)
@@ -88,6 +85,7 @@ class PaintView : SVGImageView {
             return drawModeOnTouchEvent(ev, x, y, rc)
         }
 
+        val curStroke = viewModel.charState.value.currentGlyph.currentStroke
         if (curStroke.isEmpty()) {
             // Select stroke
             if (viewModel.charState.value.currentGlyph.select(toSVGCoordinates(x, y, rc))) {
@@ -127,9 +125,11 @@ class PaintView : SVGImageView {
     }
 
     private fun drawModeOnTouchEvent(ev: MotionEvent, x: Int, y: Int, rc: Rect): Boolean {
+        val curGlyph = viewModel.charState.value.currentGlyph
+        var curStroke = curGlyph.currentStroke
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
-                curGlyph.deselectStrokes()
+                curStroke = curGlyph.deselectStrokes()
                 lastPt = toSVGCoordinates(x, y, rc)
                 curStroke.addV(lastPt)
                 curStroke.selected = true
@@ -146,7 +146,7 @@ class PaintView : SVGImageView {
             MotionEvent.ACTION_UP -> {
                 lastPt = toSVGCoordinates(x, y, rc)
                 curStroke.addV(lastPt)
-                curStroke = curGlyph.commitStroke()
+                curGlyph.commitStroke()
             }
 
             else -> return false
@@ -156,9 +156,9 @@ class PaintView : SVGImageView {
     }
 
     private fun glyphModeOnTouchEvent(ev: MotionEvent, x: Int, y: Int, rc: Rect): Boolean {
+        val g = viewModel.charState.value.currentGlyph
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
-                val g = viewModel.charState.value.currentGlyph
                 g.select(toSVGCoordinates(x, y, rc))
                 if (g.hasSelectedStrokes() && viewModel.drawMode) {
                     g.snapshotStrokes()
@@ -169,7 +169,6 @@ class PaintView : SVGImageView {
             }
 
             MotionEvent.ACTION_MOVE -> {
-                val g = viewModel.charState.value.currentGlyph
                 if (g.hasSelectedStrokes() && viewModel.drawMode) {
                     if (max(abs(x - lastPt.x), abs(y - lastPt.y)) > 4) {
                         val deltaX = x - lastPt.x
@@ -182,7 +181,6 @@ class PaintView : SVGImageView {
             }
 
             MotionEvent.ACTION_UP -> {
-                val g = viewModel.charState.value.currentGlyph
                 if (g.hasSelectedStrokes() && viewModel.drawMode) {
                     val deltaX = x - lastPt.x
                     val deltaY = y - lastPt.y
