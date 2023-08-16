@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var auth: FirebaseAuth
     private lateinit var listTags: ListView
+    private lateinit var drawModeCheck: CheckBox
     private lateinit var listTagsAdapter: ArrayAdapter<String>
 
     private val loginLauncher = registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
@@ -99,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         val saveButton = findViewById<Button>(R.id.save)
         saveButton.setOnClickListener { onSaveClick(it) }
 
-        val drawModeCheck = findViewById<CheckBox>(R.id.draw_mode)
+        drawModeCheck = findViewById<CheckBox>(R.id.draw_mode)
         drawModeCheck.setOnCheckedChangeListener { _, isChecked ->
             viewModel.drawMode = isChecked
             if (isChecked && viewModel.scopeState.value == Scope.Stroke) {
@@ -112,7 +113,7 @@ class MainActivity : AppCompatActivity() {
         addButton.setOnClickListener {
             when (viewModel.scopeState.value) {
                 Scope.Char -> onAddGlyph(it)
-                Scope.Stroke -> onAddStrokeOrControlPoint(it)
+                Scope.Stroke -> onAddControlPoint(it)
                 Scope.Tag -> onAddTag(it)
                 else -> invalidClick(it)
             }
@@ -277,8 +278,12 @@ class MainActivity : AppCompatActivity() {
         // TODO: implement
     }
 
-    private fun onAddStrokeOrControlPoint(v: View) {
-        // TODO: implement
+    private fun onAddControlPoint(v: View) {
+        viewModel.charState.value.currentGlyph.getSelectedStroke().addControlPoint()
+        if (viewModel.drawMode) {
+            drawModeCheck.isChecked = false
+        }
+        paintView.refresh()
     }
 
     private fun onAddTag(v: View) {

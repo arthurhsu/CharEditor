@@ -202,6 +202,9 @@ class Stroke : ActionQueue<Pt>() {
             if (isClosedTo(vertices[i], vertices[i+1], p)) {
                 Log.d(TAG, "toggle select: stroke $i")
                 selected = !selected
+                if (selected) {
+                    toggleSelectControlPoint(p)
+                }
                 return true
             }
         }
@@ -250,8 +253,27 @@ class Stroke : ActionQueue<Pt>() {
         return "${vertices[0].toString()}-${vertices[vertices.size-1].toString()}"
     }
 
+    fun addControlPoint() {
+        if (!selected || vertices.size < 2) return
+
+        val index = vertices.size - 1
+        val pt1 = vertices[index]
+        val pt = Pt(pt1.x + 30, pt1.y + 30)
+        add(index + 1, pt, true)
+    }
+
+    override fun add(index: Int, target: Pt, rec: Boolean) {
+        super.add(index, target, rec)
+        vertices.add(index, target)
+    }
+
     override fun replace(index: Int, target: Pt, original: Pt, rec: Boolean) {
         super.replace(index, target, original, rec)
         vertices[index] = target
+    }
+
+    override fun remove(index: Int, target: Pt, rec: Boolean) {
+        super.remove(index, target, rec)
+        vertices.removeAt(index)
     }
 }

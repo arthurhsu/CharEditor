@@ -79,6 +79,17 @@ class Glyph private constructor() : ActionQueue<Stroke>() {
         return futureStroke
     }
 
+    fun getSelectedStroke(): Stroke {
+        if (currentStroke != futureStroke) {
+            return currentStroke
+        } else {
+            val ret = strokes[strokes.size - 1]
+            ret.selected = true
+            currentStroke = ret
+            return ret
+        }
+    }
+
     fun render(canvas: SVGML, preview: Boolean, scope: Scope) {
         if (isEmpty()) return
         strokes.forEach { it.render(canvas, preview, scope) }
