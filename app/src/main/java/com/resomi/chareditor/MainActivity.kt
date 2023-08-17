@@ -291,7 +291,7 @@ class MainActivity : AppCompatActivity() {
         // TODO: implement
     }
 
-    private fun onAddControlPoint(v: View) {
+    private fun onAddControlPoint(@Suppress("UNUSED_PARAMETER") v: View) {
         viewModel.charState.value.currentGlyph.getSelectedStroke().addControlPoint()
         if (viewModel.drawMode) {
             drawModeCheck.isChecked = false
@@ -301,7 +301,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun onAddTag(v: View) {
         val builder = AlertDialog.Builder(this)
-        val input = EditText(this)
+        val input = EditText(v.context)
         input.inputType = InputType.TYPE_CLASS_TEXT
         builder.setTitle(R.string.add_tag_title)
             .setView(input)
@@ -330,10 +330,10 @@ class MainActivity : AppCompatActivity() {
             deleteMode.text = getString(R.string.normal_mode)
         }
         val message = String.format(format, deleteMode.text)
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        Toast.makeText(v.context, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun onDeleteStrokes(v: View) {
+    private fun onDeleteStrokes(@Suppress("UNUSED_PARAMETER") v: View) {
         val g = viewModel.charState.value.currentGlyph
         if (!g.hasSelectedStrokes()) return
 
@@ -342,7 +342,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onDeleteTag(v: View) {
-        val builder = AlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(v.context)
         val g = viewModel.charState.value.currentGlyph
         val format = getString(R.string.delete_tag_prompt)
         builder.setTitle(R.string.delete_tag_title)
@@ -363,8 +363,8 @@ class MainActivity : AppCompatActivity() {
         val g = viewModel.charState.value.currentGlyph
         if (!g.hasSelectedStrokes()) return
 
-        val builder = AlertDialog.Builder(this)
-        val input = EditText(this)
+        val builder = AlertDialog.Builder(v.context)
+        val input = EditText(v.context)
         input.inputType = InputType.TYPE_CLASS_TEXT
         builder.setTitle(R.string.rotate_title)
             .setMessage(R.string.rotate_message)
@@ -390,7 +390,7 @@ class MainActivity : AppCompatActivity() {
         val input = dialogView.findViewById<EditText>(R.id.text_pct)
         val zoomX = dialogView.findViewById<CheckBox>(R.id.zoom_chk_x)
         val zoomY = dialogView.findViewById<CheckBox>(R.id.zoom_chk_y)
-        val dlg = AlertDialog.Builder(this)
+        val dlg = AlertDialog.Builder(v.context)
             .setView(dialogView)
             .show()
         dialogView.findViewById<Button>(R.id.zoom_ok).setOnClickListener {
