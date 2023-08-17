@@ -140,6 +140,17 @@
         app:layout_constraintLeft_toRightOf="@id/save"
         style="@style/Widget.Material3.CompoundButton.CheckBox" />
 
+    <TextView
+        android:id="@+id/delete_mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
+        android:layout_marginLeft="22dp"
+        android:text="@string/normal_mode"
+        style="@style/Widget.Material3.Badge"
+        app:layout_constraintLeft_toRightOf="@id/draw_mode"
+        app:layout_constraintTop_toBottomOf="@id/image_view" />
+
     <Button
         android:id="@+id/add"
         android:layout_width="wrap_content"

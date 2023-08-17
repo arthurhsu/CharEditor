@@ -38,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listTags: ListView
     private lateinit var drawModeCheck: CheckBox
     private lateinit var listTagsAdapter: ArrayAdapter<String>
+    private lateinit var deleteMode: TextView
 
     private val loginLauncher = registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
         res -> this.onLoginResult(res)
@@ -176,6 +177,18 @@ class MainActivity : AppCompatActivity() {
                 // TODO: implement
             }
         }
+
+        deleteMode = findViewById(R.id.delete_mode)
+    }
+
+    private fun toggleDeleteMode(): Boolean {
+        paintView.deleteMode = !paintView.deleteMode
+        if (paintView.deleteMode) {
+            deleteMode.text = getText(R.string.normal_mode)
+        } else {
+            deleteMode.text = getText(R.string.delete_mode)
+        }
+        return paintView.deleteMode
     }
 
     override fun onStart() {
@@ -309,7 +322,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onDeleteControlPoint(v: View) {
-        // TODO: implement
+        val mode = toggleDeleteMode()
+        val format = getString(R.string.set_delete_mode)
+        if (mode) {
+            deleteMode.text = getString(R.string.delete_mode)
+        } else {
+            deleteMode.text = getString(R.string.normal_mode)
+        }
+        val message = String.format(format, deleteMode.text)
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun onDeleteStrokes(v: View) {

@@ -18,10 +18,9 @@ class PaintView : SVGImageView {
     }
     private var startPt = Pt(0, 0)
     private var lastPt = Pt(0, 0)
-    private lateinit var curGlyph: Glyph
-    private lateinit var curStroke: Stroke
     private var previews = ArrayList<Preview>()
     private lateinit var viewModel: MainViewModel
+    var deleteMode = false
 
     constructor(ctx: Context) : super(ctx, null)
     constructor(ctx: Context, attrs: AttributeSet?): super(ctx, attrs, 0)
@@ -100,6 +99,9 @@ class PaintView : SVGImageView {
             MotionEvent.ACTION_DOWN -> {
                 if (curStroke.toggleSelectControlPoint(toSVGCoordinates(x, y, rc))) {
                     lastPt = toSVGCoordinates(x, y, rc)
+                    if (deleteMode && curStroke.selectedControlPoint != -1) {
+                        curStroke.removeSelectedControlPoint()
+                    }
                 }
             }
 

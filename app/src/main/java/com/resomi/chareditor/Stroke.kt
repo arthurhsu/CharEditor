@@ -305,4 +305,11 @@ class Stroke : ActionQueue<Pt>() {
             vertices[i] = Pt(x, y)
         }
     }
+
+    fun removeSelectedControlPoint() {
+        if (selectedControlPoint == -1) return
+        remove(selectedControlPoint, vertices[selectedControlPoint], true)
+        selectedControlPoint = -1
+        curPt = Pt(0, 0)
+    }
 }
