@@ -279,23 +279,19 @@ class Stroke : ActionQueue<Pt>() {
         vertices.removeAt(index)
     }
 
-    /*
     private fun transform(v: Int, pct: Int): Int {
         return (256F + (v.toFloat() - 256F) * (pct.toFloat() / 100F)).toInt()
     }
 
     fun zoom(pct: Int, zoomX: Boolean, zoomY: Boolean) {
-        for (v in vertices) {
-            var x = v.x
-            var y = v.y
+        for (i in 0 until vertices.size) {
+            var x = vertices[i].x
+            var y = vertices[i].y
             if (zoomX) x = transform(x, pct)
             if (zoomY) y = transform(y, pct)
-            v.x = x
-            v.y = y
+            vertices[i] = Pt(x, y)
         }
     }
-
-     */
 
     fun rotate(deg: Int) {
         for (i in 0 until vertices.size) {

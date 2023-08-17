@@ -32,7 +32,11 @@
     <string name="list_success">Retrieved char list from server</string>
     <string name="overwrite_title">Confirm overwrite</string>
     <string name="overwrite_message">Char already staged, overwrite?</string>
-    <string name="rotate_title">Rotate strokes</string>
+    <string name="rotate_title">Rotate selected strokes</string>
     <string name="rotate_message">How many degrees? (negative to CCW)</string>
     <string name="invalid_input">Invalid input value</string>
+    <string name="zoom_title">Zoom selected strokes</string>
+    <string name="zoom_message">Percentage of zoom?</string>
+    <string name="zoom_x">Zoom on X direction</string>
+    <string name="zoom_y">Zoom on Y direction</string>
 </resources>

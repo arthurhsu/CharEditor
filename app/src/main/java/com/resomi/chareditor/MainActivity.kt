@@ -358,7 +358,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onZoomStrokes(v: View) {
-        // TODO: implement
+        val g = viewModel.charState.value.currentGlyph
+        if (!g.hasSelectedStrokes()) return
+
+        val dialogView = layoutInflater.inflate(R.layout.zoom_dialog, null)
+        val input = dialogView.findViewById<EditText>(R.id.text_pct)
+        val zoomX = dialogView.findViewById<CheckBox>(R.id.zoom_chk_x)
+        val zoomY = dialogView.findViewById<CheckBox>(R.id.zoom_chk_y)
+        val dlg = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .show()
+        dialogView.findViewById<Button>(R.id.zoom_ok).setOnClickListener {
+            val pct = input.text.toString().toInt()
+            if (pct <= 0 || pct > 30000) {
+                Toast.makeText(this, R.string.invalid_input, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            g.zoomSelectedStrokes(pct, zoomX.isChecked, zoomY.isChecked)
+            paintView.refresh()
+            dlg.dismiss()
+        }
+        dialogView.findViewById<Button>(R.id.zoom_cancel).setOnClickListener {
+            dlg.dismiss()
+        }
     }
 
     private fun onUndoClick() {

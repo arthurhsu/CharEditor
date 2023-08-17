@@ -183,4 +183,15 @@ class Glyph private constructor() : ActionQueue<Stroke>() {
             }
         }
     }
+
+    fun zoomSelectedStrokes(pct: Int, zoomX: Boolean, zoomY: Boolean) {
+        snapshotStrokes()
+        for (i in 0 until strokes.size) {
+            val s = strokes[i]
+            if (s.selected) {
+                s.zoom(pct, zoomX, zoomY)
+                snapshot[i]?.let { super.replace(i, s, it, true) }
+            }
+        }
+    }
 }
