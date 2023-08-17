@@ -313,7 +313,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onDeleteStrokes(v: View) {
-        // TODO: implement
+        val g = viewModel.charState.value.currentGlyph
+        if (!g.hasSelectedStrokes()) return
+
+        g.removeSelectedStrokes()
+        paintView.refresh()
     }
 
     private fun onDeleteTag(v: View) {

@@ -194,4 +194,12 @@ class Glyph private constructor() : ActionQueue<Stroke>() {
             }
         }
     }
+
+    fun removeSelectedStrokes() {
+        for (i in strokes.size - 1 downTo 0) {
+            if (strokes[i].selected) {
+                remove(i, strokes[i], true)
+            }
+        }
+    }
 }
