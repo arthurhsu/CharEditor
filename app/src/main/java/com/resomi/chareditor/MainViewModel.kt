@@ -24,51 +24,70 @@ class MainViewModel : ViewModel() {
     var msgState: StateFlow<String> = msg.asStateFlow()
     var drawMode: Boolean = false
     lateinit var storage: FirebaseStorage
-    val serverChars = HashSet<String>()
-    val stageChars = HashSet<String>()
+    private val serverChars = HashSet<String>()
+    private val stageChars = HashSet<String>()
+    private var listed = false
 
-    private fun loadChar(s: String) {
-        if (storage == null) return
+    private fun loadChar(s: String, fromStage: Boolean): CompletableFuture<Character> {
+        val promise = CompletableFuture<Character>()
+        if (storage == null) {
+            promise.complete(Character.getNew(s))
+            return promise
+        }
 
-        val code = Character.getCode(s)
-        val file = "data/${code.substring(0, 1)}/$code.json"
-        val ref = storage.reference.child(file)
-        val ONE_MEGA_BYTE: Long = 1024 * 1024
-        ref.getBytes(ONE_MEGA_BYTE).addOnSuccessListener {
-            try {
-                val data = String(it)
-                val json = JSONObject(data)
-                val ret = Character.fromJSON(json)
-                char.value = ret
-            } catch (e: Exception) {
-                Log.e(TAG, e.toString())
+        thread(true) {
+            val code = Character.getCode(s)
+            val file: String
+            if (fromStage) {
+                file = "stage/$code.json"
+            } else {
+                file = "data/${code.substring(0, 1)}/$code.json"
             }
-        }.addOnFailureListener {
-            Log.e(TAG, it.toString())
-            if (it is StorageException) {
-                if (it.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
-                    Log.i(TAG,"$file not existed in cloud, creating new Character")
-                    char.value = Character.getNew(s)
+            val ref = storage.reference.child(file)
+            val ONE_MEGA_BYTE: Long = 1024 * 1024
+            ref.getBytes(ONE_MEGA_BYTE).addOnSuccessListener {
+                try {
+                    val data = String(it)
+                    val json = JSONObject(data)
+                    val ret = Character.fromJSON(json)
+                    promise.complete(ret)
+                } catch (e: Exception) {
+                    Log.e(TAG, e.toString())
+                }
+            }.addOnFailureListener {
+                Log.e(TAG, it.toString())
+                if (it is StorageException) {
+                    if (it.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                        Log.i(TAG, "$file not existed in cloud, creating new Character")
+                        promise.complete(Character.getNew(s))
+                    }
                 }
             }
         }
+        return promise
     }
 
-    private fun saveChar() {
-        if (char.value.isNada()) return
-
-        msg.value = ""
-        val code = char.value.code
-        val file = "stage/$code.json"
-        val ref = storage.reference.child(file)
-        val json = char.value.toJSON().toString().encodeToByteArray()
-        ref.putBytes(json).addOnSuccessListener {
-            msg.value = R.string.save_success.toString()
-            stageChars.add(code)
-        }.addOnFailureListener {
-            Log.e(TAG, it.toString())
-            msg.value = R.string.save_failed.toString()
+    private fun saveChar(): CompletableFuture<String> {
+        val promise = CompletableFuture<String>()
+        if (char.value.isNada()) {
+            promise.complete("")
+            return promise
         }
+
+        thread(true) {
+            msg.value = ""
+            val code = char.value.code
+            val file = "stage/$code.json"
+            val ref = storage.reference.child(file)
+            val json = char.value.toJSON().toString().encodeToByteArray()
+            ref.putBytes(json).addOnSuccessListener {
+                promise.complete(code)
+            }.addOnFailureListener {
+                Log.e(TAG, it.toString())
+                promise.complete("")
+            }
+        }
+        return promise
     }
 
     private fun listDirOnServer(dir: String): CompletableFuture<ArrayList<String>> {
@@ -92,19 +111,29 @@ class MainViewModel : ViewModel() {
         return promise
     }
 
-    fun load(s: String) {
-        thread(true) {
-            loadChar(s)
+    fun hasStaged(s: String): Boolean {
+        return stageChars.contains(Character.getCode(s))
+    }
+
+    fun load(s: String, fromStage: Boolean) {
+        loadChar(s, fromStage).thenAccept {
+            char.value = it
         }
     }
 
     fun save() {
-        thread(true) {
-            saveChar()
+        saveChar().thenAccept {
+            if (it.isEmpty()) {
+                msg.value = R.string.save_failed.toString()
+            } else {
+                msg.value = R.string.save_success.toString()
+                stageChars.add(it)
+            }
         }
     }
 
     fun list() {
+        if (listed) return
         msg.value = ""
 
         val futures = ArrayList<CompletableFuture<ArrayList<String>>>()
@@ -129,6 +158,7 @@ class MainViewModel : ViewModel() {
 
         CompletableFuture.allOf(*futures.toTypedArray()).thenAccept {
             msg.value = R.string.list_success.toString()
+            listed = true
         }
     }
 

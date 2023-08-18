@@ -42,4 +42,6 @@
     <string name="normal_mode">NORM</string>
     <string name="delete_mode">DEL</string>
     <string name="set_delete_mode">Delete mode set to %1$s</string>
+    <string name="load_which_title">Loading Character</string>
+    <string name="load_which_message">Staged char found, load from staging?</string>
 </resources>

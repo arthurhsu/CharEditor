@@ -209,6 +209,19 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 
+    private fun onStaged(v: View, s: String) {
+        val builder = AlertDialog.Builder(v.context)
+        builder.setTitle(R.string.load_which_title)
+            .setMessage(R.string.load_which_message)
+            .setPositiveButton(R.string.yes) { _, _ ->
+                viewModel.load(s, true)
+            }
+            .setNegativeButton(R.string.no) { _, _ ->
+                viewModel.load(s, false)
+            }
+            .show()
+    }
+
     private fun onLoadClick(v: View) {
         val editText = EditText(this)
         val builder = AlertDialog.Builder(v.context)
@@ -217,11 +230,15 @@ class MainActivity : AppCompatActivity() {
             .setView(editText)
             .setPositiveButton("OK") { _, _ ->
                 if (editText.text.length == 1) {
-                    // TODO: implement loading from stage
-                    viewModel.load(editText.text.toString())
+                    val targetChar = editText.text.toString()
+                    if (viewModel.hasStaged(targetChar)) {
+                        onStaged(v, targetChar)
+                    } else {
+                        viewModel.load(targetChar, false)
+                    }
                 }
             }
-        builder.show()
+            .show()
     }
 
     private fun onScopeGroupChecked(
@@ -271,7 +288,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onSaveClick(v: View) {
-        if (viewModel.stageChars.contains(viewModel.charState.value.code)) {
+        if (viewModel.hasStaged(viewModel.charState.value.text)) {
             // Validate for overwriting
             val builder = AlertDialog.Builder(v.context)
             builder.setTitle(R.string.overwrite_title)
