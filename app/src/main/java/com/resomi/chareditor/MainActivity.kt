@@ -36,8 +36,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var auth: FirebaseAuth
     private lateinit var listTags: ListView
+    private lateinit var spinnerGlyph: Spinner
     private lateinit var drawModeCheck: CheckBox
     private lateinit var listTagsAdapter: ArrayAdapter<String>
+    private lateinit var spinnerAdapter: ArrayAdapter<String>
     private lateinit var deleteMode: TextView
 
     private val loginLauncher = registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
@@ -149,10 +151,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         val undoButton = findViewById<Button>(R.id.undo)
-        undoButton.setOnClickListener { onUndoClick() }
+        undoButton.setOnClickListener { onUndoClick(it) }
 
         val redoButton = findViewById<Button>(R.id.redo)
-        redoButton.setOnClickListener { onRedoClick() }
+        redoButton.setOnClickListener { onRedoClick(it) }
 
         val importButton = findViewById<Button>(R.id.import_from)
         importButton.setOnClickListener {
@@ -168,13 +170,15 @@ class MainActivity : AppCompatActivity() {
             viewModel.charState.value.currentGlyph.currentTag = listTagsAdapter.getItem(pos) ?: ""
         }
 
-        val spinnerGlyph = findViewById<Spinner>(R.id.glyph_spinner)
+        spinnerGlyph = findViewById<Spinner>(R.id.glyph_spinner)
         spinnerGlyph.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // TODO: implement
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                viewModel.charState.value.select(0)
+                paintView.refresh()
             }
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // TODO: implement
+                viewModel.charState.value.select(position)
+                paintView.refresh()
             }
         }
 
@@ -200,6 +204,9 @@ class MainActivity : AppCompatActivity() {
         }
         listTagsAdapter = ArrayAdapter(this, R.layout.list_item, R.id.textview)
         listTags.adapter = listTagsAdapter
+
+        spinnerAdapter = ArrayAdapter(this, R.layout.list_item, R.id.textview)
+        spinnerGlyph.adapter = spinnerAdapter
     }
 
     private fun onRequestToast(s: String) {
@@ -304,8 +311,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun onAddGlyph(v: View) {
-        // TODO: implement
+    private fun onAddGlyph(@Suppress("UNUSED_PARAMETER") v: View) {
+        val c = viewModel.charState.value
+        if (c.isNada()) return
+
+        val index = c.size
+        c.add(index, Glyph.getEmpty(), true)
+        spinnerAdapter.add(index.toString())
+        spinnerGlyph.setSelection(index)
     }
 
     private fun onAddControlPoint(@Suppress("UNUSED_PARAMETER") v: View) {
@@ -335,7 +348,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onDeleteGlyph(v: View) {
-        // TODO: implement
+        val c = viewModel.charState.value
+        if (c.isNada() || c.size <= 1) return
+
+        val actualDelete = {
+            val index = c.currentIndex
+            c.remove(index, c.currentGlyph, true)
+            resetSpinner()
+            if (index == 0) {
+                paintView.refresh()
+            }
+        }
+
+        if (c.currentGlyph.isEmpty()) {
+            actualDelete()
+        } else {
+            val builder = AlertDialog.Builder(v.context)
+            builder.setTitle(R.string.delete_glyph_title)
+                .setMessage(R.string.delete_glyph_message)
+                .setPositiveButton(R.string.yes) { _, _ ->
+                    actualDelete()
+                }
+                .setNegativeButton(R.string.no) { _, _ -> }
+                .show()
+        }
     }
 
     private fun onDeleteControlPoint(v: View) {
@@ -425,9 +461,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun onUndoClick() {
+    private fun onUndoClick(v: View) {
         val c = viewModel.charState.value
         when (viewModel.scopeState.value) {
+            Scope.Char -> {
+                c.undo()
+                resetSpinner()
+            }
             Scope.Glyph -> {
                 c.currentGlyph.undo()
                 paintView.refresh()
@@ -440,13 +480,17 @@ class MainActivity : AppCompatActivity() {
                 }
                 paintView.refresh()
             }
-            else -> {}
+            else -> invalidClick(v)
         }
     }
 
-    private fun onRedoClick() {
+    private fun onRedoClick(v: View) {
         val c = viewModel.charState.value
         when (viewModel.scopeState.value) {
+            Scope.Char -> {
+                c.redo()
+                resetSpinner()
+            }
             Scope.Glyph -> {
                 c.currentGlyph.redo()
                 paintView.refresh()
@@ -455,12 +499,21 @@ class MainActivity : AppCompatActivity() {
                 c.currentGlyph.currentStroke.redo()
                 paintView.refresh()
             }
-            else -> {}
+            else -> invalidClick(v)
         }
     }
 
     private fun onImportGlyph(v: View) {
         // TODO: implement
+    }
+
+    private fun resetSpinner() {
+        val c = viewModel.charState.value
+        spinnerAdapter.clear()
+        for (i in 0 until c.size) {
+            spinnerAdapter.add(i.toString())
+        }
+        spinnerGlyph.setSelection(0)
     }
 
     private fun onCharChange() {
@@ -470,9 +523,10 @@ class MainActivity : AppCompatActivity() {
         val badge = "${c.text} ${c.code}"
         val charInfo: TextView = findViewById(R.id.char_info)
         charInfo.text = badge
+
         listTagsAdapter.clear()
         listTagsAdapter.addAll(c.currentGlyph.tags)
-        paintView.refresh()
+        resetSpinner()
     }
 
     private fun onScopeChange() {

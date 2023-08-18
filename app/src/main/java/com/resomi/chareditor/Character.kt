@@ -4,7 +4,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.InvalidObjectException
 
-class Character private constructor(val text: String) {
+class Character private constructor(val text: String) : ActionQueue<Glyph>() {
     companion object {
         fun fromJSON(json: JSONObject): Character {
             val text = json.getString("text")
@@ -17,7 +17,7 @@ class Character private constructor(val text: String) {
             for (i in 0 until glyphArray.length()) {
                 ret.glyphs.add(Glyph.fromJSON(glyphArray.getJSONObject(i)))
             }
-            ret.currentGlyph = ret.glyphs[0]
+            ret.index = 0
             return ret
         }
 
@@ -28,7 +28,7 @@ class Character private constructor(val text: String) {
         fun getNew(s: String): Character {
             val ret = Character(s)
             ret.glyphs.add(Glyph.getEmpty())
-            ret.currentGlyph = ret.glyphs[0]
+            ret.select(0)
             return ret
         }
 
@@ -36,6 +36,9 @@ class Character private constructor(val text: String) {
             return s.codePointAt(0).toString(16).uppercase()
         }
     }
+
+    private val glyphs = ArrayList<Glyph>()
+    private var index = -1
 
     fun isNada(): Boolean {
         return text == "0"
@@ -54,6 +57,27 @@ class Character private constructor(val text: String) {
     }
 
     val code = getCode(text)
-    val glyphs = ArrayList<Glyph>()
-    lateinit var currentGlyph: Glyph
+    val currentGlyph get() = this.glyphs[this.index]
+    val currentIndex get() = this.index
+    val size get() = this.glyphs.size
+
+    fun select(i: Int) {
+        if (i == index || i < 0 || i >= glyphs.size) return
+        index = i
+    }
+
+    override fun add(index: Int, target: Glyph, rec: Boolean) {
+        super.add(index, target, rec)
+        glyphs.add(index, target)
+    }
+
+    override fun remove(index: Int, target: Glyph, rec: Boolean) {
+        super.remove(index, target, rec)
+        glyphs.removeAt(index)
+    }
+
+    override fun replace(index: Int, target: Glyph, original: Glyph, rec: Boolean) {
+        super.replace(index, target, original, rec)
+        glyphs[index] = target
+    }
 }
