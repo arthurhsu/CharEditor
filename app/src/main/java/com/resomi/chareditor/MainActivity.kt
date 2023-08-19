@@ -548,6 +548,7 @@ class MainActivity : AppCompatActivity() {
         listTagsAdapter.clear()
         listTagsAdapter.addAll(c.currentGlyph.tags)
         resetSpinner()
+        paintView.refresh()
     }
 
     private fun onScopeChange() {
