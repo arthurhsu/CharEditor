@@ -201,6 +201,7 @@ class MainActivity : AppCompatActivity() {
         if (currentUser != null) {
             currentUser.email?.let { updateLoginInfo(it) }
             viewModel.storage = Firebase.storage
+            viewModel.list()
         }
         listTagsAdapter = ArrayAdapter(this, R.layout.list_item, R.id.textview)
         listTags.adapter = listTagsAdapter
@@ -504,7 +505,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onImportGlyph(v: View) {
-        // TODO: implement
+        val c = viewModel.charState.value
+        if (!c.currentGlyph.isEmpty()) {
+            Toast.makeText(v.context, R.string.error_import_glyph, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val editText = EditText(this)
+        val builder = AlertDialog.Builder(v.context)
+        builder.setTitle(R.string.char_picker_title)
+            .setMessage(R.string.char_picker_message)
+            .setView(editText)
+            .setPositiveButton("OK") { _, _ ->
+                if (editText.text.length == 1) {
+                    val targetChar = editText.text.toString()
+                    viewModel.loadChar(targetChar, viewModel.hasStaged(targetChar)).thenAccept {
+                        c.replace(c.currentIndex, it.currentGlyph.clone(), c.currentGlyph, true)
+                        paintView.refresh()
+                    }
+                }
+            }
+            .show()
     }
 
     private fun resetSpinner() {

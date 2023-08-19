@@ -46,4 +46,5 @@
     <string name="load_which_message">Staged char found, load from staging?</string>
     <string name="delete_glyph_title">Confirm delete glyph</string>
     <string name="delete_glyph_message">Delete current glyph?</string>
+    <string name="error_import_glyph">Can only import into empty glyph</string>
 </resources>

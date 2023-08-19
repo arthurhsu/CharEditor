@@ -28,7 +28,7 @@ class MainViewModel : ViewModel() {
     private val stageChars = HashSet<String>()
     private var listed = false
 
-    private fun loadChar(s: String, fromStage: Boolean): CompletableFuture<Character> {
+    fun loadChar(s: String, fromStage: Boolean): CompletableFuture<Character> {
         val promise = CompletableFuture<Character>()
         if (storage == null) {
             promise.complete(Character.getNew(s))
