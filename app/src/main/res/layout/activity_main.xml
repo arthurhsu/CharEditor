@@ -98,14 +98,19 @@
             android:layout_height="wrap_content"
             android:text="@string/scope_stroke"
             />
-        <Button
-            style="?attr/materialButtonOutlinedStyle"
-            android:id="@+id/btn_tag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/scope_tag"
-            />
     </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <Button
+        style="@style/Widget.Material3.Button.ElevatedButton"
+        android:id="@+id/btn_tag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:text="@string/tag"
+        app:layout_constraintTop_toBottomOf="@id/image_view"
+        app:layout_constraintLeft_toRightOf="@id/scope"
+        />
 
     <Button
         android:id="@+id/load"
@@ -115,7 +120,7 @@
         android:layout_marginLeft="8dp"
         android:text="@string/load"
         app:layout_constraintTop_toBottomOf="@id/image_view"
-        app:layout_constraintLeft_toRightOf="@id/scope"
+        app:layout_constraintLeft_toRightOf="@id/btn_tag"
         style="@style/Widget.Material3.Button.ElevatedButton" />
 
     <Button

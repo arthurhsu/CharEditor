@@ -11,6 +11,5 @@ package com.resomi.chareditor
 enum class Scope {
     Char,
     Stroke,
-    Glyph,
-    Tag
+    Glyph
 }

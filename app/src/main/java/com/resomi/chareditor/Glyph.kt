@@ -14,11 +14,6 @@ class Glyph private constructor() : ActionQueue<Stroke>() {
             for (i in 0 until tags.length()) {
                 ret.tags.add(tags.getString(i))
             }
-            if (tags.length() > 0) {
-                ret.currentTag = ret.tags.first()
-            } else {
-                ret.currentTag = ""
-            }
             val strokes = json.getJSONArray("strokes")
             for (i in 0 until strokes.length()) {
                 ret.strokes.add(Stroke.fromJSON(strokes.getJSONObject(i)))
@@ -54,17 +49,11 @@ class Glyph private constructor() : ActionQueue<Stroke>() {
     lateinit var currentStroke: Stroke
     private lateinit var futureStroke: Stroke
     var tags = HashSet<String>(listOf("楷"))
-    var currentTag: String = "楷"
 
     fun clone(): Glyph {
         val ret = getEmpty()
         ret.strokes.addAll(strokes)
         ret.tags.addAll(tags)
-        if (!ret.tags.isEmpty()) {
-            ret.currentTag = tags.first()
-        } else {
-            ret.currentTag = ""
-        }
         return ret
     }
 

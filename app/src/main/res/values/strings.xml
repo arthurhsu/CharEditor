@@ -16,15 +16,13 @@
     <string name="scope_char">Char</string>
     <string name="scope_stroke">Stroke</string>
     <string name="scope_glyph">Glyph</string>
-    <string name="scope_tag">Tag</string>
+    <string name="tag">Tag</string>
     <string name="login">Log In Google</string>
     <string name="login_default">Not logged in</string>
     <string name="invalid_click">Operation has no effect in current scope</string>
-    <string name="add_tag_title">Add tag</string>
+    <string name="dlg_tag_title">Modify tag</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
-    <string name="delete_tag_title">Delete tag</string>
-    <string name="delete_tag_prompt">Are you sure to delete tag %1$s!?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="save_success">Save successfully</string>
@@ -47,4 +45,12 @@
     <string name="delete_glyph_title">Confirm delete glyph</string>
     <string name="delete_glyph_message">Delete current glyph?</string>
     <string name="error_import_glyph">Can only import into empty glyph</string>
+    <string name="tag_kai">楷</string>
+    <string name="tag_xin">行</string>
+    <string name="tag_cao">草</string>
+    <string name="tag_yi">異</string>
+    <string name="tag_zhi">日</string>
+    <string name="tag_jian">簡</string>
+    <string name="tag_you">優</string>
+    <string name="tag_gai">改</string>
 </resources>

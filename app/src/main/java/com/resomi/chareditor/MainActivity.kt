@@ -97,6 +97,15 @@ class MainActivity : AppCompatActivity() {
             onScopeGroupChecked(scopeGroup, checkedId, isChecked)
         }
 
+        val tagButton = findViewById<Button>(R.id.btn_tag)
+        tagButton.setOnClickListener {
+            if (viewModel.scopeState.value == Scope.Glyph) {
+                onTag(it)
+            } else {
+                invalidClick(it)
+            }
+        }
+
         val loadButton = findViewById<Button>(R.id.load)
         loadButton.setOnClickListener { onLoadClick(it) }
 
@@ -117,7 +126,6 @@ class MainActivity : AppCompatActivity() {
             when (viewModel.scopeState.value) {
                 Scope.Char -> onAddGlyph(it)
                 Scope.Stroke -> onAddControlPoint(it)
-                Scope.Tag -> onAddTag(it)
                 else -> invalidClick(it)
             }
         }
@@ -128,7 +136,6 @@ class MainActivity : AppCompatActivity() {
                 Scope.Char -> onDeleteGlyph(it)
                 Scope.Glyph -> onDeleteStrokes(it)
                 Scope.Stroke -> onDeleteControlPoint(it)
-                Scope.Tag -> onDeleteTag(it)
             }
         }
 
@@ -166,9 +173,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         listTags = findViewById(R.id.tag_box)
-        listTags.setOnItemClickListener { _, _, pos, _ ->
-            viewModel.charState.value.currentGlyph.currentTag = listTagsAdapter.getItem(pos) ?: ""
-        }
+        listTags.setOnItemClickListener { _, _, _, _ -> }
 
         spinnerGlyph = findViewById<Spinner>(R.id.glyph_spinner)
         spinnerGlyph.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -271,10 +276,7 @@ class MainActivity : AppCompatActivity() {
                         viewModel.setScope(Scope.Stroke)
                         checkBox.text = getString(R.string.draw)
                     }
-                    else -> {
-                        viewModel.setScope(Scope.Tag)
-                        checkBox.isEnabled = false
-                    }
+                    else -> {}
                 }
             }
         }
@@ -330,22 +332,36 @@ class MainActivity : AppCompatActivity() {
         paintView.refresh()
     }
 
-    private fun onAddTag(v: View) {
-        val builder = AlertDialog.Builder(this)
-        val input = EditText(v.context)
-        input.inputType = InputType.TYPE_CLASS_TEXT
-        builder.setTitle(R.string.add_tag_title)
-            .setView(input)
+    private fun onTag(v: View) {
+        val builder = AlertDialog.Builder(v.context)
+        val tagsId = arrayOf(
+            R.string.tag_kai,
+            R.string.tag_xin,
+            R.string.tag_cao,
+            R.string.tag_yi,
+            R.string.tag_zhi,
+            R.string.tag_jian,
+            R.string.tag_you,
+            R.string.tag_gai
+        )
+        val g = viewModel.charState.value.currentGlyph
+        val tags = tagsId.map { getString(it) }.toTypedArray()
+        val checked = tags.map { g.tags.contains(it) }.toBooleanArray()
+        builder.setMultiChoiceItems(tags, checked) { _, _, _ -> }
+            .setTitle(R.string.dlg_tag_title)
             .setPositiveButton(R.string.ok) { _, _ ->
-                val newTag = input.text.toString()
-                val g = viewModel.charState.value.currentGlyph
-                if (g.tags.add(newTag)) {
-                    listTagsAdapter.add(newTag)
-                    g.currentTag = newTag
+                g.tags.clear()
+                listTagsAdapter.clear()
+                for (i in 0 until tags.size) {
+                    val t = tags[i]
+                    if (checked[i]) {
+                        g.tags.add(t)
+                        listTagsAdapter.add(t)
+                    }
                 }
             }
             .setNegativeButton(R.string.cancel) { _, _ -> }
-        builder.show()
+            .show()
     }
 
     private fun onDeleteGlyph(v: View) {
@@ -393,24 +409,6 @@ class MainActivity : AppCompatActivity() {
 
         g.removeSelectedStrokes()
         paintView.refresh()
-    }
-
-    private fun onDeleteTag(v: View) {
-        val builder = AlertDialog.Builder(v.context)
-        val g = viewModel.charState.value.currentGlyph
-        val format = getString(R.string.delete_tag_prompt)
-        builder.setTitle(R.string.delete_tag_title)
-            .setMessage(String.format(format, g.currentTag))
-            .setPositiveButton(R.string.yes) { _, _ ->
-                val glyph = viewModel.charState.value.currentGlyph
-                if (glyph.tags.remove(glyph.currentTag)) {
-                    listTagsAdapter.clear()
-                    listTagsAdapter.addAll(glyph.tags)
-                    glyph.currentTag = listTagsAdapter.getItem(0) ?: ""
-                }
-            }
-            .setNegativeButton(R.string.no) { _, _ -> }
-        builder.show()
     }
 
     private fun onRotateStrokes(v: View) {
@@ -462,7 +460,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun onUndoClick(v: View) {
+    private fun onUndoClick(@Suppress("UNUSED_PARAMETER") v: View) {
         val c = viewModel.charState.value
         when (viewModel.scopeState.value) {
             Scope.Char -> {
@@ -481,11 +479,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 paintView.refresh()
             }
-            else -> invalidClick(v)
         }
     }
 
-    private fun onRedoClick(v: View) {
+    private fun onRedoClick(@Suppress("UNUSED_PARAMETER") v: View) {
         val c = viewModel.charState.value
         when (viewModel.scopeState.value) {
             Scope.Char -> {
@@ -500,7 +497,6 @@ class MainActivity : AppCompatActivity() {
                 c.currentGlyph.currentStroke.redo()
                 paintView.refresh()
             }
-            else -> invalidClick(v)
         }
     }
 

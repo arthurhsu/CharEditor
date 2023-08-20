@@ -77,7 +77,7 @@ class PaintView : SVGImageView {
         return when(viewModel.scopeState.value) {
             Scope.Stroke -> strokeModeOnTouchEvent(ev, x, y, rc)
             Scope.Glyph -> glyphModeOnTouchEvent(ev, x, y, rc)
-            else -> charModeOnTouchEvent(ev, x, y, rc)
+            else -> true
         }
     }
 
@@ -199,10 +199,6 @@ class PaintView : SVGImageView {
             }
             else -> return false
         }
-        return true
-    }
-
-    private fun charModeOnTouchEvent(ev: MotionEvent, x:Int, y: Int, rc: Rect): Boolean {
         return true
     }
 }
