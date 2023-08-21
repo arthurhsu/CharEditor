@@ -16,6 +16,10 @@ import kotlin.concurrent.thread
 val TAG = "CharEditor"
 
 class MainViewModel : ViewModel() {
+    companion object {
+        val ONE_MEGA_BYTE: Long = 1024 * 1024
+    }
+
     private var scope = MutableStateFlow(Scope.Char)
     private var char = MutableStateFlow(Character.nada())
     private var msg = MutableStateFlow("")
@@ -26,6 +30,7 @@ class MainViewModel : ViewModel() {
     lateinit var storage: FirebaseStorage
     private val serverChars = HashSet<String>()
     private val stageChars = HashSet<String>()
+    private val allChars = HashSet<String>()
     private var listed = false
 
     fun loadChar(s: String, fromStage: Boolean): CompletableFuture<Character> {
@@ -44,7 +49,6 @@ class MainViewModel : ViewModel() {
                 file = "data/${code.substring(0, 1)}/$code.json"
             }
             val ref = storage.reference.child(file)
-            val ONE_MEGA_BYTE: Long = 1024 * 1024
             ref.getBytes(ONE_MEGA_BYTE).addOnSuccessListener {
                 try {
                     val data = String(it)
@@ -85,6 +89,32 @@ class MainViewModel : ViewModel() {
             }.addOnFailureListener {
                 Log.e(TAG, it.toString())
                 promise.complete("")
+            }
+        }
+        return promise
+    }
+
+    private fun parseAllChars(): CompletableFuture<Boolean> {
+        val promise = CompletableFuture<Boolean>()
+        thread(true) {
+            val ref = storage.reference.child("word.txt")
+            ref.getBytes(ONE_MEGA_BYTE).addOnSuccessListener {
+                try {
+                    val data = String(it)
+                    for (i in 0 until data.length) {
+                        if (data.codePointAt(i) > 0x4000) {
+                            allChars.add(data[i].toString())
+                        }
+                    }
+                    Log.i(TAG, "all chars: ${allChars.size}")
+                    promise.complete(true)
+                } catch (e: Exception) {
+                    Log.e(TAG, e.toString())
+                    promise.complete(false)
+                }
+            }.addOnFailureListener {
+                Log.e(TAG, it.toString())
+                promise.complete(false)
             }
         }
         return promise
@@ -146,9 +176,10 @@ class MainViewModel : ViewModel() {
         if (listed) return
         msg.value = ""
 
-        val futures = ArrayList<CompletableFuture<ArrayList<String>>>()
+        val futures = ArrayList<CompletableFuture<*>>()
         serverChars.clear()
         stageChars.clear()
+        allChars.clear()
 
         for (i in 4..9) {
             val p = listDirOnServer("data/$i")
@@ -166,6 +197,8 @@ class MainViewModel : ViewModel() {
             stageChars.addAll(it)
         }
 
+        futures.add(parseAllChars())
+
         CompletableFuture.allOf(*futures.toTypedArray()).thenAccept {
             msg.value = R.string.list_success.toString()
             listed = true
@@ -180,6 +213,17 @@ class MainViewModel : ViewModel() {
         thread(true) {
             scope.value = s
         }
+    }
+
+    fun suggestChar(): String {
+        if (!listed) return ""
+
+        for (c in allChars) {
+            if (!serverChars.contains(c) && !stageChars.contains(c)) {
+                return c
+            }
+        }
+        return ""
     }
 }
 

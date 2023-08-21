@@ -252,6 +252,11 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         viewModel.load(targetChar, false)
                     }
+                } else {
+                    val newChar = viewModel.suggestChar()
+                    if (newChar.isNotEmpty()) {
+                        viewModel.load(newChar, false)
+                    }
                 }
             }
             .show()
