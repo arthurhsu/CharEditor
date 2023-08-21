@@ -188,6 +188,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         deleteMode = findViewById(R.id.delete_mode)
+
+        val loadFromStage = findViewById<Button>(R.id.load_stage)
+        loadFromStage.setOnClickListener { onLoadFromStage(it) }
     }
 
     private fun toggleDeleteMode(): Boolean {
@@ -251,6 +254,25 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+            .show()
+    }
+
+    private fun onLoadFromStage(v: View) {
+        val items = viewModel.getStageChars().map {
+            Char(it.toInt(16)).toString()
+        }
+        var checked = -1
+        val builder = AlertDialog.Builder(v.context)
+        builder.setTitle(R.string.pick_from_stage)
+            .setSingleChoiceItems(items.toTypedArray(), checked) { _, index ->
+                checked = index
+            }
+            .setPositiveButton(R.string.ok) { _, _ ->
+                if (checked != -1) {
+                    viewModel.load(items[checked], true)
+                }
+            }
+            .setNegativeButton(R.string.cancel) { _, _ -> }
             .show()
     }
 

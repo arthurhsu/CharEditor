@@ -172,6 +172,10 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun getStageChars(): Array<String> {
+        return stageChars.toTypedArray()
+    }
+
     fun setScope(s: Scope) {
         thread(true) {
             scope.value = s

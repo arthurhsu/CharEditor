@@ -255,4 +255,15 @@
         app:layout_constraintLeft_toRightOf="@id/login"
         style="@style/Widget.Material3.Button.ElevatedButton" />
 
+    <Button
+        android:id="@+id/load_stage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:text="@string/pick_from_stage"
+        app:layout_constraintLeft_toRightOf="@id/login_info"
+        app:layout_constraintTop_toBottomOf="@id/add"
+        style="@style/Widget.Material3.Button.ElevatedButton" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
