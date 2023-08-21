@@ -116,6 +116,16 @@ class MainViewModel : ViewModel() {
     }
 
     fun load(s: String, fromStage: Boolean) {
+        if (listed) {
+            // Check if shortcutting is possible
+            val code = Character.getCode(s)
+            if (!serverChars.contains(code) && !stageChars.contains(code)) {
+                // New character
+                char.value = Character.getNew(s)
+                Log.i(TAG, "short cut new char")
+                return
+            }
+        }
         loadChar(s, fromStage).thenAccept {
             char.value = it
         }
