@@ -266,6 +266,11 @@ class MainActivity : AppCompatActivity() {
         val items = viewModel.getStageChars().map {
             Char(it.toInt(16)).toString()
         }
+        if (items.isEmpty()) {
+            Toast.makeText(v.context, R.string.empty_stage, Toast.LENGTH_SHORT).show()
+            return
+        }
+
         var checked = -1
         val builder = AlertDialog.Builder(v.context)
         builder.setTitle(R.string.pick_from_stage)

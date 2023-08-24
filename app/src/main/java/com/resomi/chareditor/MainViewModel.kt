@@ -28,9 +28,9 @@ class MainViewModel : ViewModel() {
     var msgState: StateFlow<String> = msg.asStateFlow()
     var drawMode: Boolean = false
     lateinit var storage: FirebaseStorage
-    private val serverChars = HashSet<String>()
-    private val stageChars = HashSet<String>()
-    private val allChars = HashSet<String>()
+    private val serverChars = HashSet<String>()  // Storing file names, aka stringified code
+    private val stageChars = HashSet<String>()  // ditto
+    private val allChars = HashSet<String>()  // Storing actual character
     private var listed = false
 
     fun loadChar(s: String, fromStage: Boolean): CompletableFuture<Character> {
@@ -85,6 +85,7 @@ class MainViewModel : ViewModel() {
             val ref = storage.reference.child(file)
             val json = char.value.toJSON().toString().encodeToByteArray()
             ref.putBytes(json).addOnSuccessListener {
+                stageChars.add(code)
                 promise.complete(code)
             }.addOnFailureListener {
                 Log.e(TAG, it.toString())
@@ -219,7 +220,8 @@ class MainViewModel : ViewModel() {
         if (!listed) return ""
 
         for (c in allChars) {
-            if (!serverChars.contains(c) && !stageChars.contains(c)) {
+            val code = Character.getCode(c)
+            if (!serverChars.contains(code) && !stageChars.contains(code)) {
                 return c
             }
         }
