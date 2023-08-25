@@ -178,12 +178,18 @@ class MainActivity : AppCompatActivity() {
         spinnerGlyph = findViewById<Spinner>(R.id.glyph_spinner)
         spinnerGlyph.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {
-                viewModel.charState.value.select(0)
+                val c = viewModel.charState.value
+                c.select(0)
                 paintView.refresh()
+                listTagsAdapter.clear()
+                listTagsAdapter.addAll(c.currentGlyph.tags)
             }
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                viewModel.charState.value.select(position)
+                val c = viewModel.charState.value
+                c.select(position)
                 paintView.refresh()
+                listTagsAdapter.clear()
+                listTagsAdapter.addAll(c.currentGlyph.tags)
             }
         }
 
