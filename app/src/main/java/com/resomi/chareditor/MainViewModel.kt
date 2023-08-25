@@ -12,6 +12,7 @@ import org.json.JSONObject
 import java.lang.Exception
 import java.util.concurrent.CompletableFuture
 import kotlin.concurrent.thread
+import kotlin.random.Random
 
 val TAG = "CharEditor"
 
@@ -219,11 +220,18 @@ class MainViewModel : ViewModel() {
     fun suggestChar(): String {
         if (!listed) return ""
 
+        val candidates = ArrayList<String>()
         for (c in allChars) {
             val code = Character.getCode(c)
             if (!serverChars.contains(code) && !stageChars.contains(code)) {
-                return c
+                candidates.add(c)
             }
+            if (candidates.size > 500) break
+        }
+        if (candidates.size > 0) {
+            val index = Random.nextInt(0, candidates.size - 1)
+            Log.i(TAG, "${candidates.size} $index")
+            return candidates[index]
         }
         return ""
     }
